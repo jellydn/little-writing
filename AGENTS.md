@@ -16,11 +16,16 @@ bun run dev                 # Start dev server http://localhost:5173
 # Build & test
 bun run build               # Production build with typecheck
 bun run preview             # Preview production build
-bunx vitest                 # Run tests (interactive)
-bunx vitest --run           # Run tests once (CI)
+bunx vitest                 # Run unit/component/integration tests (interactive)
+bunx vitest --run           # Run unit tests once (CI)
 bunx vitest src/path/test.ts # Run single test file
 bunx vitest --watch         # Watch mode
 bunx vitest --coverage      # With coverage report
+
+# E2E tests (requires playwright install)
+bunx playwright install --with-deps chromium  # Install browser
+bun run test:e2e           # Run e2e tests
+bun run test:e2e:ui        # Run e2e tests with UI
 
 # Code quality
 pnpm run lint               # oxlint for linting
@@ -33,7 +38,8 @@ bunx vitest --run && pnpm run lint && pnpm run typecheck
 
 # Justfile recipes
 just dev                    # Start dev server
-just test                   # Run tests
+just test                   # Run unit tests
+just test-e2e              # Run e2e tests
 just quality                # Run all quality checks
 
 # Capacitor iOS

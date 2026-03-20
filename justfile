@@ -32,6 +32,17 @@ test-watch:
 test-coverage:
     bunx vitest --coverage
 
+# E2E Testing
+test-e2e:
+    bun run test:e2e
+
+test-e2e-ui:
+    bun run test:e2e:ui
+
+# Install Playwright browsers
+playwright-install:
+    PLAYWRIGHT_BROWSERS_PATH=/tmp/pw-browsers bunx playwright install --with-deps chromium
+
 # Code quality
 lint:
     oxlint .
