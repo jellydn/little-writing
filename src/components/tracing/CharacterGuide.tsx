@@ -14,9 +14,9 @@
  */
 
 import React from 'react';
-import { Line, Circle, Group } from 'react-konva';
-import type { CharacterTemplate, Point } from '@/types';
+import { Circle, Group, Line } from 'react-konva';
 import { COLORS, UI_CONFIG } from '@/styles/theme';
+import type { CharacterTemplate, Point } from '@/types';
 
 interface CharacterGuideProps {
   /** Character template with stroke guide data */
@@ -53,18 +53,42 @@ export const CharacterGuide: React.FC<CharacterGuideProps> = ({
   offsetX,
   offsetY,
 }) => {
-  // Calculate animation phase for pulsing effect
   const [pulsePhase, setPulsePhase] = React.useState(0);
+  const animationRef = React.useRef<number | null>(null);
+  const lastTimeRef = React.useRef<number>(0);
 
-  // Animate pulse for current stroke
   React.useEffect(() => {
-    if (currentStrokeIndex >= template.strokes.length) return;
+    if (currentStrokeIndex >= template.strokes.length) {
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+      return;
+    }
 
-    const interval = setInterval(() => {
-      setPulsePhase((prev) => (prev + 0.05) % (Math.PI * 2));
-    }, 16); // ~60fps
+    const animate = (timestamp: number) => {
+      if (lastTimeRef.current === 0) {
+        lastTimeRef.current = timestamp;
+      }
 
-    return () => clearInterval(interval);
+      const delta = timestamp - lastTimeRef.current;
+      if (delta >= 16) {
+        setPulsePhase((prev) => (prev + 0.05) % (Math.PI * 2));
+        lastTimeRef.current = timestamp;
+      }
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+      lastTimeRef.current = 0;
+    };
   }, [currentStrokeIndex, template.strokes.length]);
 
   // Calculate pulse opacity (0.6 to 1.0)

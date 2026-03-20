@@ -33,6 +33,7 @@ test.describe("Character Selection", () => {
 		await page.getByRole("button", { name: "Numbers" }).click();
 		await page.getByRole("button", { name: /Back/i }).click();
 		await expect(page.getByRole("button", { name: "Numbers" })).toBeVisible();
-		await expect(page.getByRole("button", { name: "Letters" })).toBeVisible();
+		await expect(page.getByRole("button", { name: "Uppercase" })).toBeVisible();
+		await expect(page.getByRole("button", { name: "Lowercase" })).toBeVisible();
 	});
 });

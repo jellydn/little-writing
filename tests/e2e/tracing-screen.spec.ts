@@ -19,7 +19,7 @@ test.describe("Tracing Screen", () => {
 		await expect(
 			page.getByRole("button", { name: /previous/i }),
 		).toBeDisabled();
-		await expect(page.getByRole("button", { name: /next/i })).toBeDisabled();
+		await expect(page.getByRole("button", { name: /next/i })).toBeEnabled();
 	});
 
 	test("should show stroke progress indicator", async ({ page }) => {

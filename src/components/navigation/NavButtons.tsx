@@ -8,79 +8,48 @@
  * Task: T042
  */
 
-import React from 'react';
-import { Button } from '../ui/Button';
-import './NavButtons.css';
+import type React from "react";
+import { Button } from "../ui/Button";
+import "./NavButtons.css";
 
 export interface NavButtonsProps {
-  /** Whether there is a next character available */
-  hasNext: boolean;
-  /** Whether there is a previous character available */
-  hasPrevious: boolean;
-  /** Whether the current tracing session is complete */
-  isSessionComplete: boolean;
-  /** Callback for Next button */
-  onNext: () => void;
-  /** Callback for Previous button */
-  onPrevious: () => void;
-  /** Callback for Back button */
-  onBack: () => void;
-  /** Callback for Clear button */
-  onClear: () => void;
+	/** Whether there is a next character available */
+	hasNext: boolean;
+	/** Whether there is a previous character available */
+	hasPrevious: boolean;
+	/** Callback for Next button */
+	onNext: () => void;
+	/** Callback for Previous button */
+	onPrevious: () => void;
 }
 
 export const NavButtons: React.FC<NavButtonsProps> = ({
-  hasNext,
-  hasPrevious,
-  isSessionComplete,
-  onNext,
-  onPrevious,
-  onBack,
-  onClear,
+	hasNext,
+	hasPrevious,
+	onNext,
+	onPrevious,
 }) => {
-  const isNextEnabled = hasNext && isSessionComplete;
-  const isPreviousEnabled = hasPrevious;
+	return (
+		<div className="nav-buttons">
+			<div className="nav-buttons__center">
+				<Button
+					variant="secondary"
+					onClick={onPrevious}
+					disabled={!hasPrevious}
+					aria-label="Previous character"
+				>
+					← Prev
+				</Button>
 
-  return (
-    <div className="nav-buttons">
-      {/* Back button - left side */}
-      <Button
-        variant="secondary"
-        onClick={onBack}
-        aria-label="Go back to character selection"
-      >
-        Back
-      </Button>
-
-      {/* Center section: Previous and Next */}
-      <div className="nav-buttons__center">
-        <Button
-          variant="primary"
-          onClick={onPrevious}
-          disabled={!isPreviousEnabled}
-          aria-label="Previous character"
-        >
-          Previous
-        </Button>
-
-        <Button
-          variant="action"
-          onClick={onNext}
-          disabled={!isNextEnabled}
-          aria-label="Next character"
-        >
-          Next
-        </Button>
-      </div>
-
-      {/* Clear button - right side */}
-      <Button
-        variant="action"
-        onClick={onClear}
-        aria-label="Clear drawing and start over"
-      >
-        Clear
-      </Button>
-    </div>
-  );
+				<Button
+					variant="primary"
+					onClick={onNext}
+					disabled={!hasNext}
+					aria-label="Next character"
+				>
+					Next →
+				</Button>
+			</div>
+		</div>
+	);
 };

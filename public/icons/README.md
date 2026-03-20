@@ -12,6 +12,7 @@ Capacitor requires icons in multiple sizes. Place icons here or in the root publ
 ## iOS Icon Sizes
 
 When building for iOS, Capacitor will automatically generate:
+
 - iPhone App Icon 60x60 (1x, 2x, 3x)
 - iPad App Icon 76x76 (1x, 2x)
 - iPad Pro App Icon 83.5x83.5 (2x)

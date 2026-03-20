@@ -9,9 +9,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
+  gap: 12px;
+  padding: 16px 20px;
   width: 100%;
+  background-color: #ffffff;
 }
 
 .nav-buttons__center {
@@ -20,11 +21,12 @@
   align-items: center;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
+@media (max-width: 480px) {
   .nav-buttons {
     flex-wrap: wrap;
     justify-content: center;
+    padding: 12px;
+    gap: 10px;
   }
 
   .nav-buttons__center {
