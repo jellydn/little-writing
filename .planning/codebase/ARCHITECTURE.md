@@ -1,120 +1,234 @@
 # Architecture
 
-**Analysis Date:** 2026-03-20
+Kids Handwriting Tracing App - Architectural Overview
 
-## Pattern Overview
+## Pattern
 
-**Overall:** Screen-based SPA with centralized state management
+**Layered Architecture with State-Driven UI**
 
-**Key Characteristics:**
-- Screen navigation drives UI flow (category-selection → character-selection → tracing)
-- Zustand store for global state (navigation, character selection, drawing session)
-- Canvas-based rendering with react-konva for 60fps drawing
-- Validation layer separates user input from feedback display
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Presentation Layer                      │
+│  ┌─────────────┐ ┌──────────────┐ ┌─────────────────────┐  │
+│  │   Screens   │ │   Canvas &   │ │   UI Components     │  │
+│  │   (Pages)   │ │   Tracing    │ │   (Button, Card)    │  │
+│  └─────────────┘ └──────────────┘ └─────────────────────┘  │
+│                              │                                │
+│                    ┌─────────▼─────────┐                     │
+│                    │  Custom Hooks     │                     │
+│                    │  useTracing       │                     │
+│                    │  useCanvas        │                     │
+│                    │  useValidation    │                     │
+│                    └─────────┬─────────┘                     │
+└──────────────────────────────┼───────────────────────────────┘
+                               │
+┌──────────────────────────────┼───────────────────────────────┐
+│                      State Layer                             │
+│                    ┌─────────▼─────────┐                     │
+│                    │   Zustand Store    │                     │
+│                    │   useAppStore      │                     │
+│                    └─────────┬─────────┘                     │
+└──────────────────────────────┼───────────────────────────────┘
+                               │
+┌──────────────────────────────┼───────────────────────────────┐
+│                      Business Logic Layer                     │
+│  ┌─────────────┐ ┌──────────────┐ ┌─────────────────────┐  │
+│  │   Canvas    │ │   Templates  │ │     Feedback        │  │
+│  │   Logic     │ │   Loading    │ │   (Sound/Visual)    │  │
+│  └─────────────┘ └──────────────┘ └─────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
+                               │
+┌──────────────────────────────┼───────────────────────────────┐
+│                      Data Layer                               │
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │              Character Template JSON Files               │ │
+│  │     /assets/characters/{category}/{char}.json          │ │
+│  └─────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────┘
+```
 
 ## Layers
 
-**UI Layer (Components):**
-- Purpose: React components for screens and interactive elements
-- Location: `src/components/`
-- Contains: Screen components, layout, canvas visualization, feedback UI
-- Depends on: Zustand store, canvas utilities, types
-- Used by: Main app entry point
+### 1. Presentation Layer (React Components)
 
-**State Layer:**
-- Purpose: Global application state and actions
-- Location: `src/state/sessionStore.ts`
-- Contains: Navigation state, current character, drawing session
-- Depends on: Types, character data utilities
-- Used by: All screen components
+| Component      | Purpose                                                                |
+| -------------- | ---------------------------------------------------------------------- |
+| `screens/*`    | Page-level components (CategorySelection, CharacterSelection, Tracing) |
+| `canvas/*`     | Canvas rendering and drawing functionality                             |
+| `tracing/*`    | Tracing-specific components (Canvas, StrokeFeedback, SuccessAnimation) |
+| `layout/*`     | App shell (AppLayout, ErrorBoundary)                                   |
+| `navigation/*` | Navigation controls (NavButtons, CharacterGrid)                        |
+| `ui/*`         | Reusable primitives (Button, Card)                                     |
+| `feedback/*`   | Visual feedback overlays                                               |
 
-**Business Logic Layer (lib/):**
-- Purpose: Core algorithms for validation and rendering
-- Location: `src/lib/`
-- Contains: Canvas rendering, stroke validation, touch handling, template loading
-- Depends on: Types, theme configuration
-- Used by: Canvas components, hooks
+### 2. State Layer (Zustand)
 
-**Custom Hooks Layer:**
-- Purpose: Reusable stateful logic
-- Location: `src/hooks/`
-- Contains: Canvas lifecycle, tracing session management, validation logic
-- Depends on: lib utilities, Zustand store
-- Used by: Canvas and screen components
+Single global store (`useAppStore`) managing:
+
+- Navigation state (`currentScreen`, `currentCategory`, `currentCharacter`)
+- Drawing session (`session: DrawingSession`)
+- Action dispatchers for all user interactions
+
+### 3. Business Logic Layer (Pure Functions)
+
+| Module                        | Responsibility                                            |
+| ----------------------------- | --------------------------------------------------------- |
+| `lib/canvas/strokeValidator`  | Point-to-segment distance algorithm for stroke validation |
+| `lib/canvas/pathRenderer`     | SVG path parsing and canvas rendering                     |
+| `lib/canvas/touchHandler`     | Pointer event handling with palm rejection                |
+| `lib/templates/characterData` | Character loading, caching, navigation                    |
+| `lib/feedback/soundPlayer`    | Web Audio API synthetic sound generation                  |
+| `lib/feedback/visualFeedback` | Visual feedback utilities                                 |
+
+### 4. Data Layer
+
+Static JSON files in `/public/assets/characters/` containing:
+
+- Character templates with SVG paths
+- Stroke order data
+- Bounds and metadata
 
 ## Data Flow
 
-**User Drawing Flow:**
-1. User touches canvas (touchHandler captures pointer/mouse/touch)
-2. Points added to current stroke in Zustand store
-3. On stroke end, validate against guide path (strokeValidator)
-4. Update UI with feedback (green/red, animation)
-5. Move to next stroke or mark character complete
+### Screen Navigation Flow
 
-**Navigation Flow:**
-1. User selects category → selectCategory() action
-2. Store updates currentScreen and currentCategory
-3. CharacterSelectionScreen renders
-4. User selects character → selectCharacter() action
-5. New DrawingSession created in store
-6. TracingScreen renders with canvas
+```
+App.tsx
+    │
+    ▼
+AppLayout.tsx (reads currentScreen from store)
+    │
+    ├─── "category-selection" ────► CategorySelectionScreen
+    │
+    ├─── "character-selection" ───► CharacterSelectionScreen
+    │                                    │
+    │                                    └──► onSelectCharacter() → store.selectCharacter()
+    │
+    └─── "tracing" ───────────────► TracingScreen
+                                       │
+                                       ├──► Canvas (reads template, session)
+                                       │
+                                       └──► NavButtons
+                                            │
+                                            ├──► onBack() ──► store.navigateToCategorySelection()
+                                            ├──► onNext() ───► store.nextCharacter()
+                                            └──► onClear() ──► store.clearSession()
+```
 
-**State Management:**
-- Zustand global store with actions for state transitions
-- No prop drilling - components consume store directly
-- Session state includes: template, strokes array, current stroke index, completion flag
+### Drawing Session Flow
 
-## Key Abstractions
+```
+Touch/Pointer Event
+        │
+        ▼
+createPointerHandlers() (touchHandler.ts)
+        │
+        ├── onPointerDown() ──► store.startStroke(point)
+        │
+        ├── onPointerMove() ──► store.addStrokePoint(point)
+        │
+        └── onPointerUp() ─────► store.endStroke()
+                                      │
+                                      ▼
+                              strokeValidator.validateStroke()
+                                      │
+                                      ▼
+                              Store updates session.strokes[]
+                                      │
+                                      ▼
+                              Canvas re-renders (60fps via requestAnimationFrame)
+```
 
-**DrawingSession:**
-- Purpose: Represents a single character tracing attempt
-- Examples: `src/types/index.ts`, `src/state/sessionStore.ts`
-- Pattern: Immutable updates via Zustand actions
+## Abstractions
 
-**StrokePath:**
-- Purpose: Guide path data for character strokes
-- Examples: `src/assets/characters/**/*.json`
-- Pattern: SVG-like path with guide points array for validation
+### Key Interfaces
 
-**ValidationResult:**
-- Purpose: Encapsulates stroke accuracy and feedback
-- Examples: `src/lib/canvas/strokeValidator.ts`
-- Pattern: Return object with isCorrect boolean, accuracy score, CSS color
+| Interface           | Location         | Purpose                                          |
+| ------------------- | ---------------- | ------------------------------------------------ |
+| `CharacterTemplate` | `types/index.ts` | Defines character with strokes, bounds, metadata |
+| `DrawingSession`    | `types/index.ts` | Tracks user's tracing progress                   |
+| `Stroke`            | `types/index.ts` | Single user-drawn stroke with validation state   |
+| `StrokePath`        | `types/index.ts` | Guide path for validation                        |
+| `AppStore`          | `types/index.ts` | Complete store interface                         |
+
+### Abstraction Boundaries
+
+1. **Canvas vs Store**: Canvas reads session state but never writes directly. All mutations go through store actions.
+
+2. **Hooks vs Components**: Hooks encapsulate logic, components handle rendering.
+
+3. **Validation vs Rendering**: Stroke validation is pure math (point-to-segment distance), decoupled from visual feedback.
+
+4. **Template Loading vs App**: Character data loaded asynchronously, app remains responsive.
 
 ## Entry Points
 
-**main.tsx:**
-- Location: `src/main.tsx`
-- Triggers: Browser loads index.html
-- Responsibilities: React 18 root creation, StrictMode wrapper, global styles import
+### Web Entry
 
-**App.tsx:**
-- Location: `src/App.tsx`
-- Triggers: React mount
-- Responsibilities: Touch behavior prevention, renders AppLayout
+```
+index.html
+    │
+    ▼
+src/main.tsx
+    │
+    ▼
+src/App.tsx
+    │
+    ▼
+AppLayout.tsx
+```
 
-**AppLayout:**
-- Location: `src/components/layout/AppLayout.tsx`
-- Triggers: App render
-- Responsibilities: Screen routing based on currentScreen state, ErrorBoundary wrapper
+### Mobile Entry (Capacitor)
 
-## Error Handling
+```
+ios/App/
+    │
+    ▼
+CapacitorWebView
+    │
+    ▼
+(Same as web entry)
+```
 
-**Strategy:** Component-level error boundaries with console logging
+### Key Files
 
-**Patterns:**
-- ErrorBoundary catches React component errors
-- Console.error for development debugging
-- No global error handler (app is simple, low-risk)
+| File                                       | Role                                 |
+| ------------------------------------------ | ------------------------------------ |
+| `src/main.tsx`                             | React 18 createRoot entry            |
+| `src/App.tsx`                              | App initialization, touch prevention |
+| `src/state/sessionStore.ts`                | Zustand store definition             |
+| `src/components/layout/AppLayout.tsx`      | Screen routing                       |
+| `src/components/screens/TracingScreen.tsx` | Main tracing interface               |
 
-## Cross-Cutting Concerns
+## State Management
 
-**Logging:** console.error/warn in ErrorBoundary and soundPlayer only
+### Zustand Store Structure
 
-**Validation:** Point-to-segment distance algorithm in strokeValidator
+```typescript
+interface AppStore {
+  // State
+  currentScreen: 'category-selection' | 'character-selection' | 'tracing';
+  currentCategory: Category;
+  currentCharacter: CharacterTemplate | null;
+  session: DrawingSession | null;
 
-**Authentication:** N/A (no user accounts)
+  // Actions
+  navigateToCategorySelection: () => void;
+  selectCategory: (category: Category) => void;
+  selectCharacter: (character: CharacterTemplate) => void;
+  startStroke: (point: Point) => void;
+  addStrokePoint: (point: Point) => void;
+  endStroke: () => void;
+  clearSession: () => void;
+  nextCharacter: () => Promise<void>;
+  previousCharacter: () => Promise<void>;
+}
+```
 
----
+## Performance Considerations
 
-*Architecture analysis: 2026-03-20*
+1. **60fps Canvas**: Uses `requestAnimationFrame` for smooth rendering
+2. **Device Pixel Ratio Scaling**: Canvas supports Retina displays
+3. **Touch Optimization**: Palm rejection, pointer capture, minimum stroke length
+4. **Lazy Loading**: Character templates loaded on-demand with caching
+5. **Memoization**: `useMemo` and `useCallback` prevent unnecessary re-renders

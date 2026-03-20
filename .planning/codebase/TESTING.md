@@ -1,116 +1,273 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-03-20
+**Analysis Date:** 2026-03-21
 
 ## Test Framework
 
 **Runner:**
-- Vitest 1.1.0
-- Config: Built-in defaults (no vitest.config.ts present)
+
+- Vitest 1.1.0 (unit, component, integration tests)
+- Config: `vitest.config.ts`
+- Playwright 1.40.1 (E2E tests)
+- Config: `playwright.config.ts`
 
 **Assertion Library:**
-- Vitest built-in assertions + @testing-library/jest-dom matchers
+
+- Vitest built-in `expect`
+- `@testing-library/jest-dom` for DOM assertions
+- `@testing-library/react` for component testing
+- `@testing-library/user-event` for user interaction simulation
 
 **Run Commands:**
+
 ```bash
-bun test              # Run all tests (interactive mode)
-bun test --run        # Run tests once (CI mode)
-bun test --coverage   # With coverage report
-bun test --watch      # Watch mode
+bunx vitest                 # Run all tests (interactive)
+bunx vitest --run           # Run all tests once (CI)
+bunx vitest --watch         # Watch mode
+bunx vitest --coverage      # Coverage report
+
+bun run test:e2e            # Run E2E tests
+bun run test:e2e:ui         # Run E2E tests with UI
+
+# Quality gate
+bunx vitest --run && pnpm run lint && pnpm run typecheck
 ```
 
 ## Test File Organization
 
 **Location:**
-- Separate directory: `tests/` at project root
-- Currently: Empty (no tests written yet)
+
+- Separate `tests/` directory at project root
+- Not co-located with source files
 
 **Naming:**
-- Pattern not yet established (likely `*.test.ts` or `*.spec.ts`)
+
+- Unit tests: `tests/unit/{module}.test.ts`
+- Component tests: `tests/component/{Component}.test.tsx`
+- Integration tests: `tests/integration/{flow}.test.tsx`
+- E2E tests: `tests/e2e/{screen}.spec.ts`
 
 **Structure:**
+
 ```
 tests/
-├── components/    # Component tests
-├── hooks/         # Hook tests
-├── lib/           # Business logic tests
-└── __mocks__/     # Mocks (if needed)
+├── setup.ts              # Global test setup
+├── unit/
+│   ├── strokeValidator.test.ts
+│   ├── pathRenderer.test.ts
+│   └── touchHandler.test.ts
+├── component/
+│   ├── CharacterGrid.test.tsx
+│   └── CategorySelector.test.tsx
+├── integration/
+│   ├── tracing-flow.test.tsx
+│   ├── navigation-flow.test.tsx
+│   └── clear-reset-flow.test.tsx
+└── e2e/
+    ├── character-selection.spec.ts
+    ├── category-selection.spec.ts
+    └── tracing-screen.spec.ts
 ```
 
 ## Test Structure
 
 **Suite Organization:**
-Not yet established (tests not written)
+
+```typescript
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Group related tests with describe blocks
+describe('ModuleName', () => {
+  // Setup before each test
+  beforeEach(() => {
+    // Reset mocks, clear state
+    mockFn.mockClear();
+  });
+
+  // Nested describe for related functionality
+  describe('specific behavior', () => {
+    it('should do something specific', () => {
+      // Arrange - set up test data
+      const input = createTestData();
+
+      // Act - perform the action
+      const result = myFunction(input);
+
+      // Assert - verify the result
+      expect(result).toBe(expected);
+    });
+  });
+});
+```
 
 **Patterns:**
-- Testing Library used for React components
-- describe/test blocks expected
-- Setup/teardown with beforeEach/afterEach when needed
+
+- Setup: `beforeEach` for resetting mocks/state
+- Teardown: `afterEach` for cleanup (via `cleanup()` from testing-library)
+- Test isolation: Each test sets up its own data
 
 ## Mocking
 
-**Framework:** Vitest built-in vi module
+**Framework:** Vitest's `vi` (via `import { vi } from 'vitest'`)
 
 **Patterns:**
-Not yet established (tests not written)
+
+```typescript
+// Mock entire module
+vi.mock('@/lib/feedback/soundPlayer', () => ({
+  playSuccessSound: vi.fn(),
+}));
+
+// Mock hook with return value
+vi.mock('@/hooks/useCanvas', () => ({
+  useCanvas: vi.fn(() => ({
+    canvasRef: { current: document.createElement('canvas') },
+    ctx: mockContext,
+    clear: vi.fn(),
+  })),
+}));
+
+// Create mock function
+const mockFn = vi.fn();
+mockFn.mockClear();
+mockFn.mockResolvedValue(value);
+mockFn.mockRejectedValue(error);
+```
 
 **What to Mock:**
-- Canvas rendering (Konva)
-- Sound playback (soundPlayer)
-- Capacitor plugins
+
+- External services (sound player, analytics)
+- Canvas context (DOM-dependent operations)
+- Network requests (if any)
+- Time-dependent functionality (use `vi.useFakeTimers()`)
 
 **What NOT to Mock:**
-- Business logic (strokeValidator, pathRenderer)
+
+- Internal utility functions (test them directly)
+- Simple pure functions
+- Type definitions
 
 ## Fixtures and Factories
 
 **Test Data:**
-Not yet established (tests not written)
+
+```typescript
+// Helper function to create test data
+const createGuidePath = (points: Point[]): StrokePath => ({
+  id: 1,
+  path: 'M 0 0 L 100 0',
+  startPoint: points[0],
+  endPoint: points[points.length - 1],
+  guidePoints: points,
+});
+
+// Inline fixtures for simple tests
+const mockCharacter: CharacterTemplate = {
+  character: 'A',
+  category: 'uppercase' as Category,
+  displayName: 'Letter A',
+  bounds: { width: 100, height: 100, viewBox: '0 0 100 100' },
+  strokes: [],
+  totalStrokes: 3,
+};
+```
 
 **Location:**
-- Likely `tests/fixtures/` or inline in test files
+
+- Defined inline in test files
+- Helper functions at top of test file
+- Complex fixtures can be in `tests/fixtures/` (not currently used)
 
 ## Coverage
 
-**Requirements:** None enforced (target not specified)
+**Requirements:** None enforced (no coverage threshold)
 
 **View Coverage:**
+
 ```bash
-bun test --coverage
+bunx vitest --coverage
 ```
+
+**Coverage Output:**
+
+- Text report in terminal
+- JSON and HTML reports generated
+- Provider: v8
+- Excludes: `node_modules/`, `tests/`, `dist/`
 
 ## Test Types
 
 **Unit Tests:**
-- Scope and approach: Test individual functions and hooks in isolation
-- Focus: Business logic (validation, path rendering, state management)
+
+- Scope: Individual functions and utilities
+- Location: `tests/unit/`
+- Example: `strokeValidator.test.ts` - tests distance calculations
+- Approach: Pure function testing with edge cases
 
 **Integration Tests:**
-- Scope and approach: Test component interactions with store and hooks
-- Focus: Screen navigation, drawing session lifecycle
+
+- Scope: Multi-component flows and store interactions
+- Location: `tests/integration/`
+- Example: `tracing-flow.test.tsx` - tests category→character→trace flow
+- Uses `act()` for state updates
+- Mocks external dependencies (canvas, audio)
 
 **E2E Tests:**
-- Framework: Playwright 1.40.1 (configured in devDependencies)
-- Status: Not implemented (no tests written)
+
+- Framework: Playwright
+- Location: `tests/e2e/`
+- Browser targets: Chromium (desktop + mobile Chrome)
+- Uses real browser rendering
+- Server auto-started with `bun run dev`
 
 ## Common Patterns
 
 **Async Testing:**
+
 ```typescript
-// Example pattern (not yet in codebase)
-test('async operation', async () => {
-  await waitFor(() => expect(result).toBe(expected));
+import { render, screen, waitFor, act } from '@testing-library/react';
+
+// With waitFor for async state updates
+await waitFor(() => {
+  expect(screen.getByText('Expected')).toBeInTheDocument();
+});
+
+// With act for synchronous state updates
+act(() => {
+  store.startStroke({ x: 50, y: 20 });
+  store.endStroke();
 });
 ```
 
 **Error Testing:**
+
 ```typescript
-// Example pattern (not yet in codebase)
-test('throws on invalid input', () => {
-  expect(() => validateStroke([], guidePath)).toThrow();
+// For sync functions
+expect(() => myFunction(invalidInput)).toThrow();
+
+// For async functions
+await expect(myAsyncFunction()).rejects.toThrow();
+
+// For testing error boundaries
+```
+
+**Store Testing (Zustand):**
+
+```typescript
+import { useAppStore } from '@/state/sessionStore';
+
+// Reset store state
+act(() => {
+  useAppStore.setState({
+    currentScreen: 'category-selection',
+    session: null,
+  });
 });
+
+// Access store directly in tests
+const store = useAppStore.getState();
 ```
 
 ---
 
-*Testing analysis: 2026-03-20*
+_Testing analysis: 2026-03-21_

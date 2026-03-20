@@ -1,134 +1,195 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-03-20
+**Analysis Date:** 2026-03-21
 
 ## Naming Patterns
 
 **Files:**
-- Components: `PascalCase.tsx` (e.g., `TracingScreen.tsx`, `Button.tsx`)
-- Hooks: `usePrefix.ts` (e.g., `useCanvas.ts`, `useTracing.ts`)
-- Utilities/Modules: `camelCase.ts` (e.g., `strokeValidator.ts`, `pathRenderer.ts`)
-- Constants: `SCREAMING_SNAKE_CASE` or `camelCase` (e.g., `COLORS`, `UI_CONFIG`)
-- CSS Modules: `ComponentName.module.css` (e.g., `Button.module.css`)
+
+- Components: `PascalCase.tsx` (e.g., `Canvas.tsx`, `Button.tsx`, `CharacterGrid.tsx`)
+- Hooks: `usePascalCase.ts` (e.g., `useCanvas.ts`, `useTracing.ts`)
+- Utils/Lib: `camelCase.ts` (e.g., `strokeValidator.ts`, `pathRenderer.ts`)
+- Constants: `SCREAMING_SNAKE` in `theme.ts` (e.g., `VALIDATION_CONFIG`, `COLORS`)
+- CSS Modules: `PascalCase.module.css` (e.g., `Button.module.css`)
+- Test files: `filename.test.ts` or `filename.spec.ts` pattern
 
 **Functions:**
-- camelCase for regular functions (e.g., `validateStroke`, `pointToSegmentDistance`)
-- camelCase for React components (functional components only)
+
+- CamelCase for functions and methods (e.g., `validateStroke`, `createSession`)
+- Helper functions can be private (unexported) and lowercase/camelCase
+- Async functions use `async` keyword, return `Promise<T>`
 
 **Variables:**
-- camelCase (e.g., `currentStroke`, `isComplete`, `accuracy`)
+
+- CamelCase for variables (e.g., `currentScreen`, `sessionStore`)
+- Use descriptive names; avoid single letters except in short loops
+- Boolean variables use prefixes like `is`, `has`, `can` (e.g., `isComplete`, `hasError`)
 
 **Types:**
-- PascalCase for interfaces and types (e.g., `StrokePath`, `DrawingSession`, `Category`)
-- Union types: `PascalCase` with literal values (e.g., `'number' | 'uppercase' | 'lowercase'`)
+
+- Interfaces: PascalCase (e.g., `CharacterTemplate`, `AppStore`, `Point`)
+- Type aliases for unions: PascalCase (e.g., `Category`, `Screen`)
+- Use `interface` for object shapes, `type` for unions/intersections
 
 ## Code Style
 
 **Formatting:**
-- Tool: oxfmt (Prettier-compatible)
-- Key settings:
-  - Semicolons: required
-  - Single quotes
-  - Tab width: 2 spaces
-  - Trailing comma: es5
-  - Print width: 80
+
+- Tool: oxfmt
+- Semicolons: required
+- Single quotes: true
+- Tab width: 2 spaces
+- Trailing comma: es5
+- Arrow parens: always
+- Print width: 80
+- End of line: lf
 
 **Linting:**
+
 - Tool: oxlint
-- Key rules: TypeScript strict mode enabled, no `any` type (use `unknown`)
-- Config: `.oxlintrc.json`
+- Strict TypeScript mode enabled
+- No `any` types; use `unknown` + narrow
+- Always explicit return types and parameter types
+
+**TypeScript:**
+
+- Strict mode: enabled
+- Target: ES2020
+- Module: ESNext
+- JSX: react-jsx
+- Path alias: `@/*` maps to `./src/*`
 
 ## Import Organization
 
 **Order:**
-1. React and external libraries
-2. `@/` absolute imports (lib, hooks, state, types)
-3. Relative imports (siblings, parent directories)
-4. Assets (last)
 
-```typescript
-// Example from src/components/tracing/CharacterGuide.tsx
-import React from 'react';
-import { Line, Circle, Group } from 'react-konva';
-import type { CharacterTemplate, Point } from '@/types';
-import { COLORS, UI_CONFIG } from '@/styles/theme';
-```
+1. React and core libraries (e.g., `import React from 'react'`)
+2. Third-party packages (e.g., `import { create } from 'zustand'`)
+3. Internal modules with `@/` alias (e.g., `import { validateStroke } from '@/lib/canvas/strokeValidator'`)
+4. Relative imports (e.g., `import styles from './Button.module.css'`)
 
 **Path Aliases:**
-- `@/*` maps to `./src/*` (configured in vite.config.ts and tsconfig.json)
+
+- `@/*` for `src/` (e.g., `@/components/canvas/Canvas`)
+- No default exports; named exports only
 
 ## Error Handling
 
 **Patterns:**
-- Guard clauses for early returns
-- ErrorBoundary for React component errors
-- Console.error/warn for development debugging
-- Explicit error types in async interfaces (not heavily used yet)
+
+- Guard clauses for invalid states (return early)
+- Explicit error states in async interfaces (try/catch with typed errors)
+- Never use `console.log`; only `console.warn` and `console.error`
+- ErrorBoundary component (`src/components/layout/ErrorBoundary.tsx`) catches React errors
+- Production error handling: error logging with environment checks
+
+**Example from `sessionStore.ts`:**
 
 ```typescript
-// Guard clause example
-if (userPoints.length === 0) {
-  return { isCorrect: false, accuracy: 0, feedbackColor: COLORS.incorrect };
+try {
+  const nextChar = await getNextCharacter(
+    currentCharacter.character,
+    currentCategory
+  );
+  set({ currentCharacter: nextChar, session: createSession(nextChar) });
+} catch (error) {
+  console.error('Failed to navigate to next character:', error);
+}
+```
+
+**Example from `soundPlayer.ts`:**
+
+```typescript
+try {
+  // audio operations
+} catch (error) {
+  if (error instanceof Error) {
+    if (error.name === 'NotAllowedError') {
+      console.warn('Audio playback blocked by browser...');
+    } else {
+      console.warn('Failed to play success sound:', error.message);
+    }
+  }
 }
 ```
 
 ## Logging
 
-**Framework:** console (development only)
+**Framework:** console (no external logging library)
 
 **Patterns:**
-- `console.error` for caught errors (ErrorBoundary)
-- `console.warn` for non-critical issues (soundPlayer, templateLoader)
-- No console.log in production code (except comments in examples)
-- No structured logging framework
+
+- `console.warn`: Expected errors or degraded functionality
+- `console.error`: Unexpected errors, caught exceptions
+- Development-only logging with `process.env.NODE_ENV === 'development'` checks
 
 ## Comments
 
 **When to Comment:**
-- JSDoc/TSDoc above all exported functions and interfaces
-- Complex algorithm explanations (stroke validation math)
-- References to spec documents (e.g., `// Based on specs/001-handwriting-tracing/...`)
-- TODO comments for placeholder code
+
+- Complex algorithms with explanation of math/logic (see `strokeValidator.ts`)
+- Reference to external specs/contracts
+- Task references (e.g., `// Task: T054`)
 
 **JSDoc/TSDoc:**
-- Used consistently on exported functions and interfaces
-- Includes parameter descriptions with @param
-- Includes return type descriptions with @returns
+
+- Module-level JSDoc with description of purpose
+- Function JSDoc with `@param` and `@returns` for public APIs
+- Property JSDoc for exported interfaces
+
+**Example:**
 
 ```typescript
 /**
- * Validates a user-drawn stroke against a guide path
+ * Stroke validation using point-to-segment distance algorithm
  *
- * @param userPoints - Array of points from user's drawn stroke
- * @param guidePath - The guide stroke path to validate against
- * @returns Validation result with accuracy and feedback
+ * Validates user-drawn strokes against guide paths by calculating
+ * the minimum distance from each user point to the nearest segment
+ * of the guide path.
+ *
+ * Reference: specs/001-handwriting-tracing/research.md section 2
  */
-export function validateStroke(
-  userPoints: Point[],
-  guidePath: StrokePath
-): ValidationResult
 ```
 
 ## Function Design
 
-**Size:** Prefer small, focused functions (<50 lines typically)
+**Size:**
 
-**Parameters:** Destructured objects for multiple params
+- Functions should be focused and single-purpose
+- Complex functions (like `validateStroke`) are acceptable with clear structure
 
-**Return Values:** Explicit return types on all functions (TypeScript strict mode)
+**Parameters:**
+
+- Always explicit types on parameters
+- Use interfaces for complex object parameters
+- Limit primitive parameters; prefer options objects for 3+ parameters
+
+**Return Values:**
+
+- Always explicit return types
+- Return `Promise<T>` for async functions
+- Use `void` for procedures that don't return
 
 ## Module Design
 
 **Exports:**
-- Named exports preferred (no default exports except for React components)
-- Barrel files (`index.ts`) for grouping related exports
-- One component per file (filename = component name)
+
+- Named exports only (no default exports per AGENTS.md)
+- Public functions/classes exported from modules
+- Private helpers kept internal to modules
 
 **Barrel Files:**
-- `src/types/index.ts` - All type exports
-- `src/components/screens/index.ts` - Screen component exports
-- `src/components/tracing/index.ts` - Tracing component exports
+
+- Used in `components/` subdirectories (e.g., `tracing/index.ts`, `screens/index.ts`)
+- Export all public components from the directory
+- Pattern: `export { Canvas } from './Canvas';`
+
+**Structure:**
+
+- One component/function per file
+- Props interface defined above component
+- Co-located CSS modules with same name
 
 ---
 
-*Convention analysis: 2026-03-20*
+_Convention analysis: 2026-03-21_
