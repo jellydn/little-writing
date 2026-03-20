@@ -16,11 +16,11 @@ bun run dev                 # Start dev server http://localhost:5173
 # Build & test
 bun run build               # Production build with typecheck
 bun run preview             # Preview production build
-bun test                    # Run tests (interactive)
-bun test --run              # Run tests once (CI)
-bun test src/path/test.ts   # Run single test file
-bun test --watch            # Watch mode
-bun test --coverage         # With coverage report
+bunx vitest                 # Run tests (interactive)
+bunx vitest --run           # Run tests once (CI)
+bunx vitest src/path/test.ts # Run single test file
+bunx vitest --watch         # Watch mode
+bunx vitest --coverage      # With coverage report
 
 # Code quality
 pnpm run lint               # oxlint for linting
@@ -29,7 +29,7 @@ pnpm run format:check       # Check formatting without writing
 pnpm run typecheck          # tsc --noEmit
 
 # Quality gate (before commit)
-bun test --run && pnpm run lint && pnpm run typecheck
+bunx vitest --run && pnpm run lint && pnpm run typecheck
 
 # Justfile recipes
 just dev                    # Start dev server
@@ -59,7 +59,7 @@ npx cap open ios            # Open in Xcode
 - One component per file, filename = component name
 - Use `React.FC<Props>` type for components
 
-### Naming
+## Naming
 
 | Element     | Convention       | Example              |
 | ----------- | ---------------- | -------------------- |
@@ -70,12 +70,7 @@ npx cap open ios            # Open in Xcode
 | Interfaces  | PascalCase       | `CharacterTemplate`  |
 | CSS Modules | camelCase.module | `Button.module.css`  |
 
-### Imports
-
-1. React & external libs
-2. `@/` absolute imports (lib, hooks, state)
-3. Relative imports
-4. Assets
+## Imports
 
 ```typescript
 import React, { useState } from "react";
@@ -84,11 +79,9 @@ import { Button } from "../ui/Button";
 import styles from "./MyComponent.module.css";
 ```
 
-- Use `@/` alias for `src/`
-- No default exports (except for Next.js pages)
-- Group imports by category with blank line between groups
+- Use `@/` alias for `src/`; no default exports; group imports by category
 
-### Error Handling
+## Error Handling
 
 - Guard clauses for invalid states
 - Explicit error states in async interfaces
@@ -137,7 +130,7 @@ public/            # Static public assets
 
 ## Quality Gates
 
-- [ ] Tests pass (`bun test --run`)
+- [ ] Tests pass (`bunx vitest --run`)
 - [ ] Lint clean (`pnpm run lint`)
 - [ ] Typecheck clean (`pnpm run typecheck`)
 - [ ] Touch targets ≥44px

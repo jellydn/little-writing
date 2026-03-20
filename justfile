@@ -21,16 +21,16 @@ preview:
 
 # Testing
 test:
-    bun test
+    bunx vitest
 
 test-unit:
-    bun test --run
+    bunx vitest --run
 
 test-watch:
-    bun test --watch
+    bunx vitest --watch
 
 test-coverage:
-    bun test --coverage
+    bunx vitest --coverage
 
 # Code quality
 lint:

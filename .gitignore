@@ -63,3 +63,4 @@ Thumbs.db
 
 # Vite
 .vite/
+/.claude/settings.local.json
