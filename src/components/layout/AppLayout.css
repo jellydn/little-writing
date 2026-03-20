@@ -1,0 +1,32 @@
+/**
+ * AppLayout Styles
+ *
+ * Full-screen layout with minimal chrome
+ * Takes 100% height and width of viewport
+ */
+
+.app-layout {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+.app-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Screen-specific styles */
+.category-selection-screen,
+.character-selection-screen,
+.tracing-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  overflow-y: auto;
+}

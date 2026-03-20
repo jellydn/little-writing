@@ -1,0 +1,126 @@
+/**
+ * Global Styles
+ *
+ * CSS reset, font setup, and base styles for the Kids Handwriting Tracing App.
+ * Uses bright, child-friendly colors and a rounded, friendly font.
+ *
+ * Based on specs/001-handwriting-tracing/contracts/ui-contracts.md
+ * Task: T036
+ */
+
+/* CSS Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family:
+    'Nunito',
+    'Quicksand',
+    'Comic Sans MS',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #2d3436;
+  background-color: #ffffff;
+  overflow: hidden; /* Prevent scrolling - app is full-screen */
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Remove default button styles */
+button {
+  font: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Remove list styles */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Remove image borders */
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Accessibly hide elements */
+.sr-only,
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus visible for keyboard navigation */
+:focus-visible {
+  outline: 3px solid #2196f3;
+  outline-offset: 2px;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #2196f3;
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  z-index: 100;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Remove tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent text selection on UI elements */
+button,
+.ui-element {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Smooth transitions for interactive elements */
+button,
+a,
+input {
+  transition: all 0.2s ease-in-out;
+}

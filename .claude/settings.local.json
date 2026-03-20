@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.specify/scripts/bash/create-new-feature.sh \"Kids Handwriting Tracing App - Interactive tracing app for children aged 4-6 to learn writing numbers and alphabet through touch/stylus input on iPad. Features: Numbers 0-9, Alphabet A-Z \\(uppercase+lowercase\\), Guided stroke paths with visual arrows/dotted lines, Touch drawing with finger or stylus, Basic feedback with correct/incorrect stroke highlighting, Simple success indicators \\(stars\\), Navigation between characters. Out of scope: User accounts, ads, AI recognition, multiplayer. UX: Large characters, minimal UI, bright colors, immediate feedback, easy reset.\" --json --short-name \"handwriting-tracing\")",
+      "Bash(.specify/scripts/bash/setup-plan.sh --json)",
+      "Bash(.specify/scripts/bash/update-agent-context.sh claude:*)",
+      "Bash(.specify/scripts/bash/check-prerequisites.sh --json)",
+      "Bash(.specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks)",
+      "Bash(bun run:*)",
+      "Bash(bunx tsc:*)",
+      "Bash(bun install:*)",
+      "Bash(bun --version)",
+      "Bash(npx tsc:*)",
+      "Bash(bunx eslint:*)",
+      "Bash(echo \"Exit code: $?\")",
+      "Bash(bun x:*)",
+      "Bash(echo \"Type check completed with status: $?\")",
+      "Bash(node:*)",
+      "Bash(bunx biome:*)",
+      "Bash(grep -q '\"\"biome\"\"' package.json)",
+      "Bash(pnpm run:*)",
+      "Bash(bun test:*)",
+      "Bash(bun add:*)",
+      "Bash(bun pm:*)",
+      "Bash(bun remove:*)",
+      "Bash(npx cap:*)",
+      "Bash(/Users/huynhdung/src/tries/2026-03-20-little-writing/public/icons/README.md:*)",
+      "Bash(sed -i '' 's/^- \\\\[ \\\\] T051/^- [x] T051/' /Users/huynhdung/src/tries/2026-03-20-little-writing/specs/001-handwriting-tracing/tasks.md)",
+      "Bash(sed -i '' 's/^- \\\\[ \\\\] T052/^- [x] T052/' /Users/huynhdung/src/tries/2026-03-20-little-writing/specs/001-handwriting-tracing/tasks.md)",
+      "Bash(sed -i '' 's/^- \\\\[ \\\\] T053/^- [x] T053/' /Users/huynhdung/src/tries/2026-03-20-little-writing/specs/001-handwriting-tracing/tasks.md)",
+      "Bash(sed -i '' 's/^- \\\\[ \\\\] T054/^- [x] T054/' /Users/huynhdung/src/tries/2026-03-20-little-writing/specs/001-handwriting-tracing/tasks.md)",
+      "Bash(sed -i '' 's/^- \\\\[ \\\\] T055/^- [x] T055/' /Users/huynhdung/src/tries/2026-03-20-little-writing/specs/001-handwriting-tracing/tasks.md)"
+    ]
+  }
+}

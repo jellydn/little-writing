@@ -1,0 +1,158 @@
+# AGENTS.md - Little Writing
+
+**Project**: Kids Handwriting Tracing App  
+**Stack**: TypeScript, React 18, react-konva, Capacitor, Vitest  
+**Updated**: 2026-03-20
+
+---
+
+## Commands
+
+```bash
+# Install & dev
+bun install                 # Install dependencies
+bun run dev                 # Start dev server http://localhost:5173
+
+# Build & test
+bun run build               # Production build with typecheck
+bun run preview             # Preview production build
+bun test                    # Run tests (interactive)
+bun test --run              # Run tests once (CI)
+bun test src/path/test.ts   # Run single test file
+bun test --watch            # Watch mode
+bun test --coverage         # With coverage report
+
+# Code quality
+pnpm run lint               # oxlint for linting
+pnpm run format             # oxfmt for formatting
+pnpm run format:check       # Check formatting without writing
+pnpm run typecheck          # tsc --noEmit
+
+# Quality gate (before commit)
+bun test --run && pnpm run lint && pnpm run typecheck
+
+# Justfile recipes
+just dev                    # Start dev server
+just test                   # Run tests
+just quality                # Run all quality checks
+
+# Capacitor iOS
+npx cap sync                # Sync web build to iOS
+npx cap open ios            # Open in Xcode
+```
+
+---
+
+## Code Style
+
+### TypeScript
+
+- Strict mode enabled, no `any` (use `unknown` + narrow)
+- Always explicit return types and parameter types
+- Interfaces for object shapes, types for unions
+- Use `as const` for immutable constants
+
+### React
+
+- Functional components only, named exports
+- Define props interface above component
+- One component per file, filename = component name
+- Use `React.FC<Props>` type for components
+
+### Naming
+
+| Element     | Convention       | Example              |
+| ----------- | ---------------- | -------------------- |
+| Components  | PascalCase.tsx   | `Canvas.tsx`         |
+| Hooks       | usePrefix.ts     | `useTracing.ts`      |
+| Utils       | camelCase.ts     | `strokeValidator.ts` |
+| Constants   | SCREAMING_SNAKE  | `VALIDATION_CONFIG`  |
+| Interfaces  | PascalCase       | `CharacterTemplate`  |
+| CSS Modules | camelCase.module | `Button.module.css`  |
+
+### Imports
+
+1. React & external libs
+2. `@/` absolute imports (lib, hooks, state)
+3. Relative imports
+4. Assets
+
+```typescript
+import React, { useState } from "react";
+import { validateStroke } from "@/lib/canvas/strokeValidator";
+import { Button } from "../ui/Button";
+import styles from "./MyComponent.module.css";
+```
+
+- Use `@/` alias for `src/`
+- No default exports (except for Next.js pages)
+- Group imports by category with blank line between groups
+
+### Error Handling
+
+- Guard clauses for invalid states
+- Explicit error states in async interfaces
+- Never leave `console.log`, only `console.warn/error`
+- Use ErrorBoundary for component errors
+
+### Formatting (oxfmt)
+
+- Semicolons: required
+- Single quotes
+- Tab width: 2 spaces
+- Trailing comma: es5
+- Arrow parens: always
+- Print width: 80
+- End of line: lf
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/    # React UI (ui/, layout/, screens/, canvas/)
+├── lib/           # Business logic (canvas/, templates/, feedback/)
+├── hooks/         # Custom React hooks
+├── state/         # Zustand store
+├── styles/        # theme.ts, animations.ts
+├── types/         # Type definitions
+└── assets/        # Static assets
+tests/             # Unit, component, integration tests
+specs/             # Feature specs and contracts
+public/            # Static public assets
+```
+
+---
+
+## Constitution (Non-Negotiable)
+
+1. **Child-Centric**: Touch targets ≥44px, bright colors, minimal UI
+2. **Guided Learning**: Visual paths, real-time validation
+3. **Touch-First**: 60fps, finger + stylus support
+4. **Immediate Feedback**: Green/red validation, sounds/animations
+5. **Simplicity**: No auth, ads, gamification, or AI (MVP scope)
+
+---
+
+## Quality Gates
+
+- [ ] Tests pass (`bun test --run`)
+- [ ] Lint clean (`pnpm run lint`)
+- [ ] Typecheck clean (`pnpm run typecheck`)
+- [ ] Touch targets ≥44px
+- [ ] Canvas maintains 60fps
+
+---
+
+## Key Files
+
+| Purpose      | File                                |
+| ------------ | ----------------------------------- |
+| App          | `src/App.tsx`                       |
+| State        | `src/state/sessionStore.ts`         |
+| Validation   | `src/lib/canvas/strokeValidator.ts` |
+| Theme        | `src/styles/theme.ts`               |
+| Types        | `src/types/index.ts`                |
+| Constitution | `.specify/memory/constitution.md`   |
+| Justfile     | `justfile`                          |

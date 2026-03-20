@@ -1,0 +1,35 @@
+/**
+ * NavButtons Component Styles
+ *
+ * Child-friendly navigation button styling.
+ * Layout: Back (left) | Previous/Next (center) | Clear (right)
+ */
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  width: 100%;
+}
+
+.nav-buttons__center {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .nav-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-buttons__center {
+    order: -1;
+    width: 100%;
+    justify-content: center;
+  }
+}

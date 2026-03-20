@@ -1,0 +1,92 @@
+/**
+ * Button component styles with child-friendly design
+ */
+
+.button {
+  /* Touch target size - minimum 44x44 for accessibility */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 12px 24px;
+
+  /* Typography */
+  font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+
+  /* Transitions for smooth interactions */
+  transition: all 0.15s ease-in-out;
+
+  /* Prevent text selection */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Focus styles for keyboard navigation */
+.button:focus-visible {
+  outline: 3px solid var(--focus-color, #2196f3);
+  outline-offset: 2px;
+}
+
+/* Primary variant - bright coral/red */
+.primary {
+  background-color: #ff6b6b;
+  color: #ffffff;
+  --focus-color: #ff5252;
+}
+
+.primary:hover:not(:disabled) {
+  background-color: #ff5252;
+  transform: scale(1.02);
+}
+
+.primary:active:not(:disabled) {
+  background-color: #e03e3e;
+  transform: scale(0.98);
+}
+
+/* Secondary variant - bright teal */
+.secondary {
+  background-color: #4ecdc4;
+  color: #ffffff;
+  --focus-color: #26b5ab;
+}
+
+.secondary:hover:not(:disabled) {
+  background-color: #26b5ab;
+  transform: scale(1.02);
+}
+
+.secondary:active:not(:disabled) {
+  background-color: #1a9e96;
+  transform: scale(0.98);
+}
+
+/* Action variant - bright yellow with border for call-to-action buttons */
+.action {
+  background-color: #ffe66d;
+  color: #2d3436;
+  border: 3px solid #ffb74d;
+  --focus-color: #ffb74d;
+}
+
+.action:hover:not(:disabled) {
+  background-color: #ffd93d;
+  transform: scale(1.02);
+}
+
+.action:active:not(:disabled) {
+  background-color: #f4c430;
+  transform: scale(0.98);
+}
+
+/* Disabled state */
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
