@@ -2,368 +2,246 @@
  * Character data exports for the Handwriting Tracing App
  *
  * This file provides access to all character templates organized by category.
- * TODO: Replace placeholder data with actual JSON imports from assets/characters/
+ * Data is loaded from JSON files in assets/characters/
  *
  * Reference: specs/001-handwriting-tracing/data-model.md
  */
 
 import type {
-  Category,
-  CharacterTemplate,
-  CategoryCollection,
-  Point,
-  StrokePath,
-  Bounds,
-} from '../../types/index';
+	Category,
+	CategoryCollection,
+	CharacterTemplate,
+} from "../../types/index";
 
 // ============================================================================
-// PLACEHOLDER CHARACTER DATA
+// JSON IMPORTS
 // ============================================================================
-// TODO: Replace these with actual imports from JSON files
-// When all 62 character JSON files are created, import them like:
-// import char0 from '../../../assets/characters/numbers/0.json';
-// ============================================================================
+// Import all character JSON files
 
-/**
- * Helper to create stroke paths for placeholder data
- */
-function createStrokePath(
-  id: number,
-  path: string,
-  startPoint: Point,
-  endPoint: Point,
-  guidePoints: Point[]
-): StrokePath {
-  return {
-    id,
-    path,
-    startPoint,
-    endPoint,
-    guidePoints,
-  };
-}
-
-/**
- * Common bounds for placeholder characters (100x100 viewBox)
- */
-const DEFAULT_BOUNDS: Bounds = {
-  width: 100,
-  height: 100,
-  viewBox: '0 0 100 100',
-};
-
-// ============================================================================
-// NUMBER CHARACTERS (0-9) - Placeholder Samples
-// ============================================================================
-
-/**
- * Character "0" - Single oval stroke
- */
-const CHARACTER_0: CharacterTemplate = {
-  character: '0',
-  category: 'number',
-  displayName: 'Zero',
-  bounds: DEFAULT_BOUNDS,
-  strokes: [
-    createStrokePath(
-      1,
-      'M 50 10 C 80 10 90 30 90 50 C 90 70 80 90 50 90 C 20 90 10 70 10 50 C 10 30 20 10 50 10',
-      { x: 50, y: 10 },
-      { x: 50, y: 90 },
-      [
-        { x: 50, y: 10 },
-        { x: 65, y: 12 },
-        { x: 80, y: 20 },
-        { x: 88, y: 35 },
-        { x: 90, y: 50 },
-        { x: 88, y: 65 },
-        { x: 80, y: 80 },
-        { x: 65, y: 88 },
-        { x: 50, y: 90 },
-        { x: 35, y: 88 },
-        { x: 20, y: 80 },
-        { x: 12, y: 65 },
-        { x: 10, y: 50 },
-        { x: 12, y: 35 },
-        { x: 20, y: 20 },
-        { x: 35, y: 12 },
-        { x: 50, y: 10 },
-      ]
-    ),
-  ],
-  totalStrokes: 1,
-};
-
-/**
- * Character "1" - Single vertical stroke
- */
-const CHARACTER_1: CharacterTemplate = {
-  character: '1',
-  category: 'number',
-  displayName: 'One',
-  bounds: DEFAULT_BOUNDS,
-  strokes: [
-    createStrokePath(1, 'M 50 20 L 50 80', { x: 50, y: 20 }, { x: 50, y: 80 }, [
-      { x: 50, y: 20 },
-      { x: 50, y: 35 },
-      { x: 50, y: 50 },
-      { x: 50, y: 65 },
-      { x: 50, y: 80 },
-    ]),
-  ],
-  totalStrokes: 1,
-};
+// Lowercase Letters (a-z)
+import chara from "../../assets/characters/lowercase/a.json";
+import charb from "../../assets/characters/lowercase/b.json";
+import charc from "../../assets/characters/lowercase/c.json";
+import chard from "../../assets/characters/lowercase/d.json";
+import chare from "../../assets/characters/lowercase/e.json";
+import charf from "../../assets/characters/lowercase/f.json";
+import charg from "../../assets/characters/lowercase/g.json";
+import charh from "../../assets/characters/lowercase/h.json";
+import chari from "../../assets/characters/lowercase/i.json";
+import charj from "../../assets/characters/lowercase/j.json";
+import chark from "../../assets/characters/lowercase/k.json";
+import charl from "../../assets/characters/lowercase/l.json";
+import charm from "../../assets/characters/lowercase/m.json";
+import charn from "../../assets/characters/lowercase/n.json";
+import charo from "../../assets/characters/lowercase/o.json";
+import charp from "../../assets/characters/lowercase/p.json";
+import charq from "../../assets/characters/lowercase/q.json";
+import charr from "../../assets/characters/lowercase/r.json";
+import chars from "../../assets/characters/lowercase/s.json";
+import chart from "../../assets/characters/lowercase/t.json";
+import charu from "../../assets/characters/lowercase/u.json";
+import charv from "../../assets/characters/lowercase/v.json";
+import charw from "../../assets/characters/lowercase/w.json";
+import charx from "../../assets/characters/lowercase/x.json";
+import chary from "../../assets/characters/lowercase/y.json";
+import charz from "../../assets/characters/lowercase/z.json";
+// Numbers (0-9)
+import char0 from "../../assets/characters/numbers/0.json";
+import char1 from "../../assets/characters/numbers/1.json";
+import char2 from "../../assets/characters/numbers/2.json";
+import char3 from "../../assets/characters/numbers/3.json";
+import char4 from "../../assets/characters/numbers/4.json";
+import char5 from "../../assets/characters/numbers/5.json";
+import char6 from "../../assets/characters/numbers/6.json";
+import char7 from "../../assets/characters/numbers/7.json";
+import char8 from "../../assets/characters/numbers/8.json";
+import char9 from "../../assets/characters/numbers/9.json";
+// Uppercase Letters (A-Z)
+import charA from "../../assets/characters/uppercase/A.json";
+import charB from "../../assets/characters/uppercase/B.json";
+import charC from "../../assets/characters/uppercase/C.json";
+import charD from "../../assets/characters/uppercase/D.json";
+import charE from "../../assets/characters/uppercase/E.json";
+import charF from "../../assets/characters/uppercase/F.json";
+import charG from "../../assets/characters/uppercase/G.json";
+import charH from "../../assets/characters/uppercase/H.json";
+import charI from "../../assets/characters/uppercase/I.json";
+import charJ from "../../assets/characters/uppercase/J.json";
+import charK from "../../assets/characters/uppercase/K.json";
+import charL from "../../assets/characters/uppercase/L.json";
+import charM from "../../assets/characters/uppercase/M.json";
+import charN from "../../assets/characters/uppercase/N.json";
+import charO from "../../assets/characters/uppercase/O.json";
+import charP from "../../assets/characters/uppercase/P.json";
+import charQ from "../../assets/characters/uppercase/Q.json";
+import charR from "../../assets/characters/uppercase/R.json";
+import charS from "../../assets/characters/uppercase/S.json";
+import charT from "../../assets/characters/uppercase/T.json";
+import charU from "../../assets/characters/uppercase/U.json";
+import charV from "../../assets/characters/uppercase/V.json";
+import charW from "../../assets/characters/uppercase/W.json";
+import charX from "../../assets/characters/uppercase/X.json";
+import charY from "../../assets/characters/uppercase/Y.json";
+import charZ from "../../assets/characters/uppercase/Z.json";
 
 // ============================================================================
-// UPPERCASE LETTERS (A-Z) - Placeholder Samples
+// CHARACTER REGISTRY
 // ============================================================================
 
-/**
- * Character "A" - Two diagonal strokes with crossbar
- */
-const CHARACTER_A: CharacterTemplate = {
-  character: 'A',
-  category: 'uppercase',
-  displayName: 'Ay',
-  bounds: DEFAULT_BOUNDS,
-  strokes: [
-    // Left diagonal
-    createStrokePath(1, 'M 30 80 L 50 20', { x: 30, y: 80 }, { x: 50, y: 20 }, [
-      { x: 30, y: 80 },
-      { x: 35, y: 65 },
-      { x: 42, y: 42 },
-      { x: 50, y: 20 },
-    ]),
-    // Right diagonal
-    createStrokePath(2, 'M 50 20 L 70 80', { x: 50, y: 20 }, { x: 70, y: 80 }, [
-      { x: 50, y: 20 },
-      { x: 58, y: 42 },
-      { x: 65, y: 65 },
-      { x: 70, y: 80 },
-    ]),
-    // Crossbar
-    createStrokePath(3, 'M 38 55 L 62 55', { x: 38, y: 55 }, { x: 62, y: 55 }, [
-      { x: 38, y: 55 },
-      { x: 44, y: 55 },
-      { x: 50, y: 55 },
-      { x: 56, y: 55 },
-      { x: 62, y: 55 },
-    ]),
-  ],
-  totalStrokes: 3,
-};
+const NUMBER_CHARACTERS: CharacterTemplate[] = [
+	char0 as CharacterTemplate,
+	char1 as CharacterTemplate,
+	char2 as CharacterTemplate,
+	char3 as CharacterTemplate,
+	char4 as CharacterTemplate,
+	char5 as CharacterTemplate,
+	char6 as CharacterTemplate,
+	char7 as CharacterTemplate,
+	char8 as CharacterTemplate,
+	char9 as CharacterTemplate,
+];
 
-// ============================================================================
-// LOWERCASE LETTERS (a-z) - Placeholder Samples
-// ============================================================================
+const UPPERCASE_CHARACTERS: CharacterTemplate[] = [
+	charA as CharacterTemplate,
+	charB as CharacterTemplate,
+	charC as CharacterTemplate,
+	charD as CharacterTemplate,
+	charE as CharacterTemplate,
+	charF as CharacterTemplate,
+	charG as CharacterTemplate,
+	charH as CharacterTemplate,
+	charI as CharacterTemplate,
+	charJ as CharacterTemplate,
+	charK as CharacterTemplate,
+	charL as CharacterTemplate,
+	charM as CharacterTemplate,
+	charN as CharacterTemplate,
+	charO as CharacterTemplate,
+	charP as CharacterTemplate,
+	charQ as CharacterTemplate,
+	charR as CharacterTemplate,
+	charS as CharacterTemplate,
+	charT as CharacterTemplate,
+	charU as CharacterTemplate,
+	charV as CharacterTemplate,
+	charW as CharacterTemplate,
+	charX as CharacterTemplate,
+	charY as CharacterTemplate,
+	charZ as CharacterTemplate,
+];
 
-/**
- * Character "a" - Circle with vertical line
- */
-const CHARACTER_a: CharacterTemplate = {
-  character: 'a',
-  category: 'lowercase',
-  displayName: 'ah',
-  bounds: DEFAULT_BOUNDS,
-  strokes: [
-    // Circle part
-    createStrokePath(
-      1,
-      'M 50 35 C 70 35 75 50 75 60 C 75 75 60 80 50 80 C 35 80 25 70 25 60 C 25 45 35 35 50 35',
-      { x: 50, y: 35 },
-      { x: 50, y: 80 },
-      [
-        { x: 50, y: 35 },
-        { x: 58, y: 35 },
-        { x: 68, y: 40 },
-        { x: 75, y: 50 },
-        { x: 75, y: 60 },
-        { x: 70, y: 72 },
-        { x: 60, y: 80 },
-        { x: 50, y: 80 },
-        { x: 38, y: 78 },
-        { x: 28, y: 70 },
-        { x: 25, y: 60 },
-        { x: 28, y: 48 },
-        { x: 38, y: 38 },
-        { x: 50, y: 35 },
-      ]
-    ),
-    // Vertical line
-    createStrokePath(2, 'M 50 20 L 50 45', { x: 50, y: 20 }, { x: 50, y: 45 }, [
-      { x: 50, y: 20 },
-      { x: 50, y: 30 },
-      { x: 50, y: 40 },
-      { x: 50, y: 45 },
-    ]),
-  ],
-  totalStrokes: 2,
-};
+const LOWERCASE_CHARACTERS: CharacterTemplate[] = [
+	chara as CharacterTemplate,
+	charb as CharacterTemplate,
+	charc as CharacterTemplate,
+	chard as CharacterTemplate,
+	chare as CharacterTemplate,
+	charf as CharacterTemplate,
+	charg as CharacterTemplate,
+	charh as CharacterTemplate,
+	chari as CharacterTemplate,
+	charj as CharacterTemplate,
+	chark as CharacterTemplate,
+	charl as CharacterTemplate,
+	charm as CharacterTemplate,
+	charn as CharacterTemplate,
+	charo as CharacterTemplate,
+	charp as CharacterTemplate,
+	charq as CharacterTemplate,
+	charr as CharacterTemplate,
+	chars as CharacterTemplate,
+	chart as CharacterTemplate,
+	charu as CharacterTemplate,
+	charv as CharacterTemplate,
+	charw as CharacterTemplate,
+	charx as CharacterTemplate,
+	chary as CharacterTemplate,
+	charz as CharacterTemplate,
+];
 
-// ============================================================================
-// CATEGORY COLLECTIONS
-// ============================================================================
-
-/**
- * All available categories
- */
-export const ALL_CATEGORIES: Category[] = ['number', 'uppercase', 'lowercase'];
-
-/**
- * Character templates organized by category
- * TODO: Populate with all 62 characters when JSON files are created
- */
 export const CHARACTERS_BY_CATEGORY: Record<Category, CharacterTemplate[]> = {
-  number: [
-    CHARACTER_0,
-    CHARACTER_1,
-    // TODO: Add characters 2-9 when JSON files are created
-  ],
-  uppercase: [
-    CHARACTER_A,
-    // TODO: Add characters B-Z when JSON files are created
-  ],
-  lowercase: [
-    CHARACTER_a,
-    // TODO: Add characters b-z when JSON files are created
-  ],
+	number: NUMBER_CHARACTERS,
+	uppercase: UPPERCASE_CHARACTERS,
+	lowercase: LOWERCASE_CHARACTERS,
 };
 
-/**
- * Category metadata with display names
- */
+// ============================================================================
+// CATEGORY METADATA
+// ============================================================================
+
 const CATEGORY_METADATA: Record<Category, string> = {
-  number: 'Numbers',
-  uppercase: 'Uppercase',
-  lowercase: 'Lowercase',
+	number: "Numbers",
+	uppercase: "Uppercase",
+	lowercase: "Lowercase",
 };
 
 // ============================================================================
-// PUBLIC API FUNCTIONS
+// PUBLIC API
 // ============================================================================
 
-/**
- * Get a specific character template by character and category
- *
- * @param character - The character to retrieve (e.g., "A", "5", "a")
- * @param category - The category the character belongs to
- * @returns The character template
- * @throws Error if character is not found in the specified category
- *
- * @example
- * const template = getCharacter('A', 'uppercase');
- */
+export const ALL_CATEGORIES: Category[] = ["number", "uppercase", "lowercase"];
+
 export function getCharacter(
-  character: string,
-  category: Category
+	character: string,
+	category: Category,
 ): CharacterTemplate {
-  const characters = CHARACTERS_BY_CATEGORY[category];
-  const template = characters.find((c) => c.character === character);
+	const characters = CHARACTERS_BY_CATEGORY[category];
+	const template = characters.find((c) => c.character === character);
 
-  if (!template) {
-    throw new Error(
-      `Character "${character}" not found in category "${category}"`
-    );
-  }
+	if (!template) {
+		throw new Error(
+			`Character "${character}" not found in category "${category}"`,
+		);
+	}
 
-  return template;
+	return template;
 }
 
-/**
- * Get all characters in a category with metadata
- *
- * @param category - The category to retrieve
- * @returns A category collection with display name and characters
- *
- * @example
- * const numbers = getCategory('number');
- * // { id: 'number', displayName: 'Numbers', characters: [...] }
- */
 export function getCategory(category: Category): CategoryCollection {
-  return {
-    id: category,
-    displayName: CATEGORY_METADATA[category],
-    characters: CHARACTERS_BY_CATEGORY[category],
-  };
+	return {
+		id: category,
+		displayName: CATEGORY_METADATA[category],
+		characters: CHARACTERS_BY_CATEGORY[category],
+	};
 }
 
-/**
- * Get all category collections
- *
- * @returns Array of all category collections
- *
- * @example
- * const allCategories = getAllCategories();
- * // [
- * //   { id: 'number', displayName: 'Numbers', characters: [...] },
- * //   { id: 'uppercase', displayName: 'Uppercase', characters: [...] },
- * //   { id: 'lowercase', displayName: 'Lowercase', characters: [...] }
- * // ]
- */
 export function getAllCategories(): CategoryCollection[] {
-  return ALL_CATEGORIES.map((category) => getCategory(category));
+	return ALL_CATEGORIES.map((category) => getCategory(category));
 }
 
-/**
- * Get the total count of characters across all categories
- *
- * @returns Total number of character templates
- */
 export function getTotalCharacterCount(): number {
-  return ALL_CATEGORIES.reduce(
-    (total, category) => total + CHARACTERS_BY_CATEGORY[category].length,
-    0
-  );
+	return ALL_CATEGORIES.reduce(
+		(total, category) => total + CHARACTERS_BY_CATEGORY[category].length,
+		0,
+	);
 }
 
-/**
- * Check if a character exists in the given category
- *
- * @param character - The character to check
- * @param category - The category to check in
- * @returns true if the character exists in the category
- */
 export function hasCharacter(character: string, category: Category): boolean {
-  return CHARACTERS_BY_CATEGORY[category].some(
-    (c) => c.character === character
-  );
+	return CHARACTERS_BY_CATEGORY[category].some(
+		(c) => c.character === character,
+	);
 }
 
-/**
- * Get the next character in a category (with wraparound)
- *
- * @param currentCharacter - Current character identifier
- * @param category - Category to navigate within
- * @returns Next character template
- */
 export function getNextCharacter(
-  currentCharacter: string,
-  category: Category
+	currentCharacter: string,
+	category: Category,
 ): CharacterTemplate {
-  const characters = CHARACTERS_BY_CATEGORY[category];
-  const currentIndex = characters.findIndex(
-    (c) => c.character === currentCharacter
-  );
-  const nextIndex = (currentIndex + 1) % characters.length;
-  return characters[nextIndex];
+	const characters = CHARACTERS_BY_CATEGORY[category];
+	const currentIndex = characters.findIndex(
+		(c) => c.character === currentCharacter,
+	);
+	const nextIndex = (currentIndex + 1) % characters.length;
+	return characters[nextIndex];
 }
 
-/**
- * Get the previous character in a category (stops at first character)
- *
- * @param currentCharacter - Current character identifier
- * @param category - Category to navigate within
- * @returns Previous character template (stops at first, no wraparound)
- */
 export function getPreviousCharacter(
-  currentCharacter: string,
-  category: Category
+	currentCharacter: string,
+	category: Category,
 ): CharacterTemplate {
-  const characters = CHARACTERS_BY_CATEGORY[category];
-  const currentIndex = characters.findIndex(
-    (c) => c.character === currentCharacter
-  );
-  // Stop at first character instead of wrapping around
-  const prevIndex = currentIndex === 0 ? 0 : currentIndex - 1;
-  return characters[prevIndex];
+	const characters = CHARACTERS_BY_CATEGORY[category];
+	const currentIndex = characters.findIndex(
+		(c) => c.character === currentCharacter,
+	);
+	const prevIndex = currentIndex === 0 ? 0 : currentIndex - 1;
+	return characters[prevIndex];
 }
