@@ -32,13 +32,13 @@ A client-side React application for children's handwriting practice. Built as a 
 
 ### Production Dependencies
 
-| Package     | Version  | Purpose                                       |
-| ----------- | -------- | --------------------------------------------- |
-| react       | ^18.2.0  | UI framework                                  |
-| react-dom   | ^18.2.0  | React DOM renderer                            |
-| konva       | ^9.2.0   | HTML5 Canvas library (alternative considered) |
-| react-konva | ^18.2.10 | React bindings for Konva (not currently used) |
-| zustand     | ^4.4.7   | State management                              |
+| Package     | Version  | Purpose                                                                    |
+| ----------- | -------- | -------------------------------------------------------------------------- |
+| react       | ^18.2.0  | UI framework                                                               |
+| react-dom   | ^18.2.0  | React DOM renderer                                                         |
+| konva       | ^9.2.0   | HTML5 Canvas library (alternative considered)                              |
+| react-konva | ^18.2.10 | React bindings for Konva — used for canvas rendering in CharacterGuide.tsx |
+| zustand     | ^4.4.7   | State management                                                           |
 
 ### Build Toolchain
 

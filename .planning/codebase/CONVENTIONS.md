@@ -59,15 +59,15 @@ export const Button: React.FC<ButtonProps> = ({
 
 ## Naming Conventions
 
-| Element     | Convention           | Example                   |
-| ----------- | -------------------- | ------------------------- |
-| Components  | PascalCase.tsx       | `Canvas.tsx`              |
-| Hooks       | usePrefix.ts         | `useTracing.ts`           |
-| Utils       | camelCase.ts         | `strokeValidator.ts`      |
-| Constants   | SCREAMING_SNAKE      | `VALIDATION_CONFIG`       |
-| Interfaces  | PascalCase           | `CharacterTemplate`       |
-| CSS Modules | camelCase.module.css | `Button.module.css`       |
-| Test files  | name.test.ts         | `strokeValidator.test.ts` |
+| Element     | Convention            | Example                   |
+| ----------- | --------------------- | ------------------------- |
+| Components  | PascalCase.tsx        | `Canvas.tsx`              |
+| Hooks       | usePrefix.ts          | `useTracing.ts`           |
+| Utils       | camelCase.ts          | `strokeValidator.ts`      |
+| Constants   | SCREAMING_SNAKE       | `VALIDATION_CONFIG`       |
+| Interfaces  | PascalCase            | `CharacterTemplate`       |
+| CSS Modules | PascalCase.module.css | `Button.module.css`       |
+| Test files  | name.test.ts          | `strokeValidator.test.ts` |
 
 ---
 

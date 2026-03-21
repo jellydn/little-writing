@@ -8,11 +8,11 @@
  */
 
 import { create } from 'zustand';
-import { validateStroke } from '../lib/canvas/strokeValidator';
+import { validateStroke } from '@/lib/canvas/strokeValidator';
 import {
   getNextCharacter,
   getPreviousCharacter,
-} from '../lib/templates/characterData';
+} from '@/lib/templates/characterData';
 import type {
   AppStore,
   Category,
@@ -21,7 +21,7 @@ import type {
   Point,
   Screen,
   Stroke,
-} from '../types';
+} from '@/types';
 
 /**
  * Creates a new drawing session for a character template
@@ -134,7 +134,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     const guideStroke = session.template.strokes[session.currentStrokeIndex];
     if (guideStroke) {
       const validation = validateStroke(currentStroke.points, guideStroke);
-      currentStroke.accuracy = Math.round(validation.accuracy * 100);
+      currentStroke.accuracy = validation.accuracy;
       currentStroke.isValid = validation.isCorrect;
     } else {
       currentStroke.accuracy = 0;

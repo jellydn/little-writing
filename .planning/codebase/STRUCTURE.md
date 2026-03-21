@@ -8,7 +8,7 @@
 ## 1. Directory Layout
 
 ```
-/Users/huynhdung/src/tries/2026-03-20-little-writing/
+little-writing/
 ├── .planning/
 │   └── codebase/
 │       ├── ARCHITECTURE.md          # This document

@@ -8,12 +8,12 @@
  */
 
 import type React from 'react';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { NavButtons } from '@/components/navigation/NavButtons';
+import { Canvas } from '@/components/tracing/Canvas';
+import { SuccessAnimation } from '@/components/tracing/SuccessAnimation';
 import { useCanvasSize } from '@/hooks/useCanvasSize';
-import type { CharacterTemplate, DrawingSession, Point } from '../../types';
-import { NavButtons } from '../navigation/NavButtons';
-import { Canvas } from '../tracing/Canvas';
-import { SuccessAnimation } from '../tracing/SuccessAnimation';
+import type { CharacterTemplate, DrawingSession, Point } from '@/types';
 import './TracingScreen.css';
 
 interface TracingScreenProps {
@@ -59,6 +59,13 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
       }
     };
   }, []);
+
+  // Memoized callback to prevent re-render instability in SuccessAnimation
+  const handleAnimationComplete = useCallback(() => {
+    if (hasNext) {
+      timeoutRef.current = setTimeout(onNext, 500);
+    }
+  }, [hasNext, onNext]);
 
   return (
     <div className="tracing-screen">
@@ -125,12 +132,7 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
 
         <SuccessAnimation
           isVisible={session.isComplete}
-          onComplete={() => {
-            // Auto-advance to next character after success animation
-            if (hasNext) {
-              timeoutRef.current = setTimeout(onNext, 500);
-            }
-          }}
+          onComplete={handleAnimationComplete}
         />
       </main>
 
