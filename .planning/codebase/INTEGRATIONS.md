@@ -1,124 +1,192 @@
-# INTEGRATIONS.md - External Integrations
+# External Integrations
 
-**Project**: Little Writing - Kids Handwriting Tracing App  
-**Last Updated**: 2026-03-20
+> External services, APIs, databases, and third-party integrations
+> Generated: 2026-03-21
 
-## External APIs
+## Overview
 
-**None** - This is a standalone mobile/web application with no backend APIs.
+**None.** This is a purely client-side application with no external integrations.
 
-## Databases
+The app is designed to work completely offline with:
 
-**None** - Character templates are loaded from static JSON files bundled with the app.
+- No backend API calls
+- No external databases
+- No authentication providers
+- No third-party analytics
+- No cloud services
+- No webhooks
 
-## Authentication Providers
+---
 
-**None** - The app has no authentication system per Constitution requirements (MVP scope: "No auth").
+## External Services
 
-## Storage & Persistence
+### None
 
-### Local Asset Storage
+The application has zero external service dependencies. All functionality is implemented client-side using:
 
-- Character templates stored as JSON files in `/public/assets/characters/`
-- Organized by category: `numbers/`, `uppercase/`, `lowercase/`
-- Loaded dynamically via fetch at runtime
+- **Browser APIs**: Canvas API, Web Audio API, Pointer Events
+- **Static Assets**: Locally hosted character templates (JSON) and sound files (MP3)
+- **In-Memory State**: Zustand store with no persistence
 
-### Character Template Loading
+---
 
-```typescript
-// Files loaded from public/assets/characters/{category}/{char}.json
-// Example: /assets/characters/uppercase/A.json
-const response = await fetch('/assets/characters/uppercase/A.json');
-const template = await response.json();
-```
+## Data Sources
 
-## External Resources
+### Local Character Templates
 
-### Audio Files
+| Source                            | Format | Purpose                                         |
+| --------------------------------- | ------ | ----------------------------------------------- |
+| `src/assets/characters/**/*.json` | JSON   | Character stroke data (SVG paths, guide points) |
+| `public/sounds/*.mp3`             | MP3    | Success sound effects                           |
 
-- **Location**: `/public/sounds/success.mp3`
-- **Purpose**: Success feedback sound for completed strokes
-- **API**: HTML5 Audio API (`new Audio()`)
-- **Note**: Preloaded on first user interaction to bypass autoplay restrictions
-
-### Fonts
-
-**None** - App uses system fonts for simplicity (child-friendly design).
-
-### Icons
-
-- **Location**: `/public/icons/` (see README)
-- Custom app icons for Capacitor/iOS deployment
-
-## Third-Party Libraries (No External Services)
-
-| Library     | Purpose               | Integration Type  |
-| ----------- | --------------------- | ----------------- |
-| Konva       | 2D Canvas rendering   | npm package       |
-| react-konva | React Konva bindings  | npm package       |
-| Zustand     | State management      | npm package       |
-| Capacitor   | Native mobile wrapper | npm package + CLI |
-
-## Web APIs Used
-
-| API              | Purpose                          |
-| ---------------- | -------------------------------- |
-| HTML5 Audio API  | Sound playback for feedback      |
-| Touch Events API | Finger/stylus input handling     |
-| Canvas API       | Drawing strokes (via Konva)      |
-| Fetch API        | Loading character template JSON  |
-| Web Storage API  | Not used (no persistence in MVP) |
-
-## Capacitor Native Integrations
-
-| Plugin          | Purpose                     |
-| --------------- | --------------------------- |
-| @capacitor/core | Core Capacitor runtime      |
-| @capacitor/ios  | iOS native platform support |
-| @capacitor/cli  | Build and sync tooling      |
-
-### Capacitor Configuration
+### Template Data Structure
 
 ```typescript
-// capacitor.config.ts
-{
-  appId: 'com.handwriting.tracing',
-  appName: 'Handwriting Tracing',
-  webDir: './dist',
-  ios: { scheme: 'App' }
+interface CharacterTemplate {
+  character: string; // e.g., "a", "1", "A"
+  category: Category; // "lowercase" | "uppercase" | "number"
+  displayName?: string; // e.g., "Lowercase A"
+  bounds: Bounds; // SVG viewBox dimensions
+  strokes: StrokePath[]; // Ordered stroke paths
+  totalStrokes: number;
+}
+
+interface StrokePath {
+  id: number;
+  path: string; // SVG path data
+  startPoint: Point;
+  endPoint: Point;
+  guidePoints: Point[]; // Validation points along path
 }
 ```
 
-## Offline Capability
+---
 
-**Yes** - The app works offline after initial load:
+## Authentication
 
-- All character templates are bundled or cached
-- No external API calls required
-- Audio files can be preloaded
-- No network dependency for core functionality
+### None
 
-## Analytics & Tracking
+No authentication or user accounts required. The app is designed for immediate use without:
 
-**None** - No analytics, tracking, or telemetry per Constitution requirements.
+- Login/registration
+- User profiles
+- Progress tracking across sessions
+- Cloud sync
 
-## Error Reporting
+---
 
-**None** - No external error reporting service. Errors logged to console only.
+## Storage
 
-## Internationalization (i18n)
+### No Persistent Storage
 
-**None** - Single language (English) for MVP scope.
+| Storage Type   | Usage    |
+| -------------- | -------- |
+| LocalStorage   | Not used |
+| IndexedDB      | Not used |
+| SessionStorage | Not used |
+| Cookies        | Not used |
+| File System    | Not used |
 
-## Cloud Services
+All application state is stored in-memory using Zustand and resets on page reload.
 
-**None** - All data and assets are local.
+---
 
-## Future Integration Considerations
+## Build & Deployment Integrations
 
-The following could be considered for future iterations:
+### CI/CD Pipeline
 
-- Cloud backup of progress (requires auth + storage API)
-- Sound asset CDN for smaller bundle size
-- Analytics for usage patterns (requires privacy consideration)
-- Progress sync across devices (requires auth + database)
+| Platform       | Integration                    | Purpose                      |
+| -------------- | ------------------------------ | ---------------------------- |
+| GitHub Actions | `.github/workflows/ci.yml`     | Quality checks, testing      |
+| GitHub Actions | `.github/workflows/deploy.yml` | GitHub Pages deployment      |
+| GitHub Pages   | Static hosting                 | Production deployment        |
+| Renovate       | `renovate.json`                | Automated dependency updates |
+
+### Mobile Build
+
+| Platform  | Integration            | Purpose                      |
+| --------- | ---------------------- | ---------------------------- |
+| Capacitor | `@capacitor/ios`       | iOS native app wrapper       |
+| CocoaPods | `ios/App/Podfile.lock` | iOS dependency management    |
+| Xcode     | iOS project files      | iOS app building and signing |
+
+---
+
+## Development Tools
+
+### Local-Only Tools
+
+| Tool         | Purpose                        | External Connection           |
+| ------------ | ------------------------------ | ----------------------------- |
+| Bun          | Package manager, script runner | Required for install only     |
+| Vite         | Dev server, bundler            | No external connection        |
+| Vitest       | Test runner                    | No external connection        |
+| Playwright   | E2E testing                    | Downloads browsers on install |
+| oxlint/oxfmt | Linting/formatting             | No external connection        |
+
+---
+
+## Potential Future Integrations
+
+### MVP Scope Exclusions
+
+Per the project constitution, these are explicitly NOT in scope:
+
+- User accounts / authentication
+- Cloud storage / sync
+- Analytics / tracking
+- In-app purchases
+- Advertisements
+- Social features
+- AI/ML handwriting recognition
+
+### Possible Post-MVP Additions
+
+| Integration    | Purpose                          | Complexity |
+| -------------- | -------------------------------- | ---------- |
+| LocalStorage   | Persist progress locally         | Low        |
+| IndexedDB      | Store custom character templates | Medium     |
+| Service Worker | Offline PWA support              | Medium     |
+
+---
+
+## Security Considerations
+
+### No External Attack Surface
+
+- No API keys to expose
+- No database connections
+- No user data to protect
+- No third-party scripts
+- No tracking pixels
+
+### Content Security Policy
+
+Recommended CSP for production:
+
+```
+default-src 'self';
+script-src 'self';
+style-src 'self' 'unsafe-inline';
+img-src 'self' data:;
+media-src 'self';
+connect-src 'self';
+font-src 'self';
+```
+
+---
+
+## Network Requirements
+
+### Offline-First Design
+
+The application can run entirely offline once loaded:
+
+| Resource            | Loading      | Offline           |
+| ------------------- | ------------ | ----------------- |
+| HTML/CSS/JS         | Initial load | Cached by browser |
+| Character templates | Bundled      | Available offline |
+| Sound effects       | Bundled      | Available offline |
+| App shell           | Cached       | Works offline     |
+
+No network requests are made during normal operation.

@@ -21,6 +21,27 @@ export class TemplateLoadError extends Error {
   }
 }
 
+const ALLOWED_CATEGORIES: readonly Category[] = [
+  'number',
+  'uppercase',
+  'lowercase',
+] as const;
+const VALID_CHARACTER_PATTERN = /^[a-zA-Z0-9]$/;
+
+/**
+ * Validates that a category and character are safe for template path construction
+ *
+ * @param category - The category to validate
+ * @param character - The character string to validate
+ * @returns true if both values are valid for use in a template path
+ */
+function isValidTemplatePath(category: Category, character: string): boolean {
+  return (
+    ALLOWED_CATEGORIES.includes(category) &&
+    VALID_CHARACTER_PATTERN.test(character)
+  );
+}
+
 /**
  * Validates that a template object matches the CharacterTemplate interface
  *
@@ -139,6 +160,14 @@ export async function loadCharacterTemplate(
   character: string,
   category: Category
 ): Promise<CharacterTemplate> {
+  if (!isValidTemplatePath(category, character)) {
+    throw new TemplateLoadError(
+      `Invalid character "${character}" or category "${category}"`,
+      character,
+      category
+    );
+  }
+
   try {
     // Dynamic import of the JSON file
     const filePath = `../../../assets/characters/${category}/${character}.json`;

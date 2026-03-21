@@ -1,627 +1,348 @@
-# Codebase Concerns
+# CONCERNS.md - Codebase Analysis
 
-**Analysis Date:** 2026-03-20  
-**Review Scope:** Kids Handwriting Tracing App (MVP)
-
----
-
-## Executive Summary
-
-This document catalogs technical debt, known issues, security concerns, performance risks, and fragile areas in the codebase. Items are prioritized by impact severity and estimated remediation effort.
+**Project**: Little Writing (Handwriting Tracing App)  
+**Last Analyzed**: 2026-03-21  
+**Source Files**: 36 | **Test Files**: 8
 
 ---
 
-## Priority Issues (High Impact)
+## Summary
 
-### CON-001: Duplicate/Unused Canvas Components
-
-**Severity:** High  
-**Category:** Code Quality / Technical Debt  
-**Files:**
-
-- `src/components/canvas/Canvas.tsx` (placeholder) - **REMOVED**
-- `src/components/tracing/Canvas.tsx` (active implementation)
-- `src/components/feedback/StrokeFeedback.tsx` (placeholder)
-
-**Description:**  
-Two Canvas implementations existed. The `canvas/` directory contained a TODO placeholder while the working implementation is in `tracing/`. This created confusion about which to use and wasted code.
-
-**Impact:**
-
-- Developer confusion about correct import paths
-- Dead code maintenance burden
-- Risk of wrong imports in future development
-
-**Remediation:**
-
-- ~~Remove `src/components/canvas/` directory entirely~~ ✅ Done
-- ~~Update barrel exports to reference only active implementations~~ ✅ N/A
-- ~~Delete or implement placeholder components~~ ✅ Removed canvas/
-
-**Status:** ✅ Resolved (2026-03-21)
+This codebase is a React-based handwriting tracing application for children. Overall code quality is **good** with strict TypeScript, proper error handling, and clear architecture. However, several areas of technical debt, incomplete features, and potential concerns have been identified.
 
 ---
 
-### CON-002: JavaScript Files Alongside TypeScript
+## 1. Technical Debt
 
-**Severity:** Medium  
-**Category:** Code Quality  
-**Files:**
+### 1.1 Incomplete Features (High Priority)
 
-- `src/components/screens/*.js` (6 files) - **REMOVED**
-- `src/components/tracing/*.js` (5 files) - **REMOVED**
+| Location                                          | Issue                                                                          | Impact                            | Status                                          |
+| ------------------------------------------------- | ------------------------------------------------------------------------------ | --------------------------------- | ----------------------------------------------- |
+| `src/state/sessionStore.ts:133`                   | ~~TODO: Stroke validation is placeholder only - always returns 100% accuracy~~ | ~~Core functionality incomplete~~ | **FIXED** - Now integrates `strokeValidator.ts` |
+| `src/components/feedback/StrokeFeedback.tsx:4,18` | TODO: Stroke feedback overlay not implemented                                  | Missing visual feedback feature   | Open                                            |
 
-**Description:**  
-Multiple `.js` counterparts existed for `.tsx` files (e.g., both `Canvas.tsx` and `Canvas.js`). These were duplicate source files that could cause confusion.
+**Details**:
 
-**Impact:**
+- ~~The `endStroke` action in sessionStore.ts hardcodes `currentStroke.accuracy = 100` and `currentStroke.isValid = true`~~ **FIXED** - Now calls `validateStroke()` from `strokeValidator.ts`
+- ~~Actual validation logic against guide paths is not integrated with the store~~ **FIXED** - Validation now properly calculates accuracy and validity
+- StrokeFeedback component is an empty placeholder (still open)
 
-- Potential import conflicts
-- Confusion about which files to edit
-- If both are used, duplicated logic
+**Fixed**: 2026-03-21 - `sessionStore.ts` now imports and uses `validateStroke()` to check user-drawn strokes against guide paths, returning real accuracy scores (0-100) instead of hardcoded 100%.
 
-**Remediation:**
+**Recommendation**: ~~Integrate `strokeValidator.ts` validation logic with the store or use the `useTracing` hook which does have validation implemented.~~ ✅ Completed.
 
-- ~~Verify if `.js` files are build artifacts~~ ✅ Verified - were source files
-- ~~If source files, convert to `.tsx` or remove~~ ✅ Removed duplicate .js files
+### 1.2 Test Coverage Gaps (Medium Priority)
 
-**Status:** ✅ Resolved (2026-03-21)
+| Category   | Coverage    | Gap                                                           |
+| ---------- | ----------- | ------------------------------------------------------------- |
+| Components | 2/15 tested | 13 components without tests                                   |
+| Hooks      | 2/5 tested  | `useCanvas`, `useValidation`, `useCanvasSize` untested        |
+| Utils      | 2/4 tested  | `templateLoader.ts`, `generateCharacterTemplates.ts` untested |
 
----
+**Untested Components**:
 
-### CON-003: Component API Mismatch
+- `Canvas.tsx` - Core drawing component
+- `TracingScreen.tsx` - Main screen
+- `StrokeFeedback.tsx` - Visual feedback
+- `SuccessAnimation.tsx` - Animation component
+- `CharacterGuide.tsx` - Guide display
+- `CategorySelector.tsx` - Navigation
+- `CharacterGrid.tsx` - Character selection
+- `NavButtons.tsx` - Navigation controls
+- `AppLayout.tsx` - Layout wrapper
+- `ErrorBoundary.tsx` - Error handling
+- `Card.tsx`, `Button.tsx` - UI components
 
-**Severity:** High  
-**Category:** Bug  
-**File:** `src/components/layout/AppLayout.tsx` (line 88)
+**Recommendation**: Prioritize testing Canvas.tsx and validation logic as they are core to the app's functionality.
 
-**Description:**  
-`AppLayout` passes `categoryCharacters` prop to `TracingScreen`, but `TracingScreen` interface does not define this prop:
+### 1.3 Code Duplication
 
-```typescript
-// AppLayout.tsx line 88
-<TracingScreen
-  template={currentCharacter}
-  session={session}
-  categoryCharacters={characters}  // ← Prop not in TracingScreen interface
-  ...
-/>
-```
+| Location                                                 | Duplication                        | Notes                             |
+| -------------------------------------------------------- | ---------------------------------- | --------------------------------- |
+| `Canvas.tsx:111-133` vs `useCanvas.ts:140-168`           | `renderStroke` function duplicated | Same logic in two places          |
+| `useValidation.ts:63-95` vs `strokeValidator.ts:116-145` | Point-to-path distance logic       | Minor variation in implementation |
 
-**Impact:**
-
-- TypeScript compilation may fail (depending on tsconfig)
-- Runtime undefined behavior if prop is accessed
-
-**Remediation:**
-
-- Add `categoryCharacters` to `TracingScreenProps` interface
-- Or remove the prop if not used in TracingScreen
-
-**Status:** Unresolved (potential bug)
+**Recommendation**: Consolidate `renderStroke` into a shared utility.
 
 ---
 
-### CON-004: Inline Styles vs CSS Modules Inconsistency
+## 2. Security Concerns
 
-**Severity:** Medium  
-**Category:** Code Quality  
-**Files:** Multiple component files
+### 2.1 Environment Variables
 
-**Description:**  
-Components use inconsistent styling approaches:
+**Status**: Acceptable - No secrets detected
 
-- `CharacterGrid.tsx`: Inline styles throughout
-- `CharacterGuide.tsx`: Uses react-konva primitives
-- `TracingScreen.tsx`: Imports CSS file (`./TracingScreen.css`)
-- `SuccessAnimation.tsx`: Inline styles + injected `<style>` tags
+| Usage                   | Location                                         | Risk Level              |
+| ----------------------- | ------------------------------------------------ | ----------------------- |
+| `process.env.CAPACITOR` | `vite.config.ts:8`                               | Low - Build flag only   |
+| `process.env.NODE_ENV`  | `ErrorBoundary.tsx:41,59`, `vitest.config.ts:32` | Low - Standard practice |
+| `process.env.CI`        | `playwright.config.ts:6-8`                       | Low - CI detection      |
 
-**Impact:**
+**No sensitive data exposure** found in source code.
 
-- Inconsistent developer experience
-- Harder to maintain themed styles
-- CSS injection in components (SuccessAnimation) is fragile
+### 2.2 Dynamic Imports
 
-**Remediation:**
+| Location                | Pattern                  | Risk                                                                                  |
+| ----------------------- | ------------------------ | ------------------------------------------------------------------------------------- |
+| `templateLoader.ts:145` | `await import(filePath)` | **Medium** - Path construction could be vulnerable if user-controlled input is passed |
 
-- Establish consistent styling strategy (recommend CSS Modules)
-- Extract shared styles to theme constants
-- Remove inline `<style>` injection, use CSS Modules instead
+**Current Mitigation**: Input is validated against hardcoded character lists before import, but path construction uses template literals.
 
-**Status:** Unresolved
+**Recommendation**: Validate filePath more strictly or use a whitelist approach.
 
----
+### 2.3 Console Usage
 
-## Technical Debt
+| Type            | Count | Locations                                                  |
+| --------------- | ----- | ---------------------------------------------------------- |
+| `console.warn`  | 7     | `soundPlayer.ts`, `templateLoader.ts`, `ErrorBoundary.tsx` |
+| `console.error` | 2     | `ErrorBoundary.tsx`                                        |
+| `console.log`   | 4     | `generateCharacterTemplates.ts` (build script)             |
 
-### CON-010: Unused Dependencies on Konva
-
-**Severity:** Low  
-**Category:** Technical Debt  
-**File:** `src/components/tracing/CharacterGuide.tsx`
-
-**Description:**  
-`CharacterGuide.tsx` imports from `react-konva` (Line, Circle, Group), but the main `Canvas.tsx` uses vanilla HTML5 Canvas API. This suggests:
-
-1. Konva was explored but abandoned
-2. CharacterGuide is dead code
-3. Mixed rendering approaches
-
-**Impact:**
-
-- Bundle size overhead (konva adds ~150kb)
-- Confusing codebase architecture
-
-**Remediation:**
-
-- Either remove CharacterGuide if unused
-- Or unify on Konva for all canvas rendering
-- Currently CharacterGuide is exported but not used in active Canvas
-
-**Status:** Unresolved
+**Status**: Acceptable - All `console.log` calls are in a build script (`generateCharacterTemplates.ts`) and excluded from production. Warnings and errors are appropriate.
 
 ---
 
-### CON-011: PathRenderer Type Duplication
+## 3. Performance Concerns
 
-**Severity:** Low  
-**Category:** Technical Debt  
-**File:** `src/lib/canvas/pathRenderer.ts` (lines 11-14, 33-47)
+### 3.1 Canvas Rendering
 
-**Description:**  
-`pathRenderer.ts` defines its own `Point`, `CharacterTemplate`, and other interfaces instead of importing from `src/types/index.ts`:
+| Concern                                      | Location                                      | Impact                                 |
+| -------------------------------------------- | --------------------------------------------- | -------------------------------------- |
+| Recalculating scale/offset on every render   | `Canvas.tsx:157-162`                          | Redundant calculations in render loop  |
+| `useMemo` on object in `useTracing.ts:66-68` | Returns new session object                    | May cause unnecessary re-renders       |
+| Direct mutation of refs in `useTracing.ts`   | `currentStrokeRef.current.points.push(point)` | Mutating state outside React's control |
 
-```typescript
-// Local type definitions (duplicated)
-export interface Point {
-  x: number;
-  y: number;
-}
+**Recommendation**:
 
-export interface CharacterTemplate {
-  character: string;
-  strokes: GuidePath[];
-  ...
-}
-```
+- Memoize scale/offset calculations in Canvas.tsx
+- Review `useTracing` hook state management approach
 
-**Impact:**
+### 3.2 Memory Management
 
-- Type drift between modules
-- Potential runtime errors if types diverge
+| Location                  | Issue                                               | Impact                                         |
+| ------------------------- | --------------------------------------------------- | ---------------------------------------------- |
+| `pathRenderer.ts:430-431` | Creates temporary canvas for path parsing           | GC pressure from frequent path sampling        |
+| `soundPlayer.ts`          | AudioContext never explicitly closed in normal flow | Potential memory leak on app lifecycle changes |
 
-**Remediation:**
+**Recommendation**:
 
-- Import types from `@/types` and adapt functions
-- Use type assertions where interface differences are intentional
+- Consider pooling temporary canvases for path operations
+- Ensure `cleanupSounds()` is called on app unmount
 
-**Status:** Unresolved
+### 3.3 Animation Frame Management
 
----
-
-### CON-012: Global AudioContext Singleton
-
-**Severity:** Low  
-**Category:** Code Quality  
-**File:** `src/lib/feedback/soundPlayer.ts` (lines 9-10)
-
-**Description:**  
-AudioContext is stored as a module-level singleton without cleanup guarantees:
-
-```typescript
-let audioContext: AudioContext | null = null;
-let isAudioContextUnlocked = false;
-```
-
-**Impact:**
-
-- Memory leak if app doesn't call `cleanupSounds()`
-- State persists across app navigation
-
-**Remediation:**
-
-- Consider moving to React context or hook
-- Add cleanup to App unmount
-- Document required cleanup call
-
-**Status:** Acknowledged, low priority
+| Location             | Pattern                                             | Risk                                      |
+| -------------------- | --------------------------------------------------- | ----------------------------------------- |
+| `Canvas.tsx:237-240` | Cancels and reschedules RAF on every session change | RAF thrashing during rapid updates        |
+| `animations.ts:310`  | `setTimeout(cleanup, duration + 50)`                | Fixed timeout may not match animation end |
 
 ---
 
-### CON-013: ErrorBoundary Uses Class Component
+## 4. Code Quality Issues
 
-**Severity:** Low  
-**Category:** Code Quality  
-**File:** `src/components/layout/ErrorBoundary.tsx`
+### 4.1 TypeScript Strictness
 
-**Description:**  
-Constitution requires functional components only, but ErrorBoundary uses class component pattern (required by React error boundary API).
+| Pattern                      | Count | Locations                                                                           |
+| ---------------------------- | ----- | ----------------------------------------------------------------------------------- |
+| `as unknown as` casts        | 7     | Test files for mocking (`setup.ts`, `touchHandler.test.ts`, `pathRenderer.test.ts`) |
+| `as Record<string, unknown>` | 14    | `templateLoader.ts` validation functions                                            |
 
-**Impact:**
+**Status**: Acceptable - Casting is primarily in tests and validation guards where it's justified.
 
-- Violates project convention
-- Requires special exception handling
+### 4.2 ESLint Suppressions
 
-**Remediation:**
+| Location                                | Rule              | Reason                                 |
+| --------------------------------------- | ----------------- | -------------------------------------- |
+| `generateCharacterTemplates.ts:506-512` | `no-console`      | Build script intentionally logs output |
+| `touchHandler.test.ts:383`              | `no-explicit-any` | Mock function assignment               |
+| `pathRenderer.test.ts:46,201`           | `no-explicit-any` | Test mocking                           |
 
-- Document this as a React API exception
-- Consider wrapper pattern if React supports it in future
+**Status**: Acceptable - All suppressions have valid reasons.
 
-**Status:** Acknowledged (API limitation)
+### 4.3 Unused Variables
 
----
+| Location                  | Variable                 | Note                                        |
+| ------------------------- | ------------------------ | ------------------------------------------- |
+| `StrokeFeedback.tsx:14`   | `_session`               | Prefixed with underscore to indicate unused |
+| `touchHandler.ts:119-120` | `_isStylus`, `_pressure` | Unused but extracted for future use         |
 
-### CON-014: TODO Comments in Codebase
-
-**Severity:** Low  
-**Category:** Technical Debt  
-**Files:**
-
-- `src/components/canvas/Canvas.tsx` (lines 3-4, 24)
-- `src/components/feedback/StrokeFeedback.tsx` (lines 3-4, 18)
-
-**Description:**  
-Two files contain explicit TODO markers:
-
-```typescript
-// Canvas.tsx line 4
-* TODO: Implement canvas drawing functionality
-
-// StrokeFeedback.tsx line 4
-* TODO: Implement stroke feedback overlay
-```
-
-**Impact:**
-
-- Incomplete features may be deployed
-- Indicates placeholder code
-
-**Remediation:**
-
-- Implement or remove placeholder components
-- Track in issue tracker if intentionally deferred
-
-**Status:** Unresolved
+**Status**: Acceptable - Follows project's underscore prefix convention.
 
 ---
 
-## Performance Concerns
+## 5. Fragile Areas
 
-### CON-020: Interval-Based Animation
+### 5.1 Template Loading
 
-**Severity:** Medium  
-**Category:** Performance  
-**File:** `src/components/tracing/CharacterGuide.tsx` (lines 63-64)
+| Concern                          | Location                    | Risk                                        |
+| -------------------------------- | --------------------------- | ------------------------------------------- |
+| Hardcoded character lists        | `templateLoader.ts:228-286` | Adding new characters requires code changes |
+| Dynamic import path construction | `templateLoader.ts:144`     | Path traversal risk if input not sanitized  |
+| JSON validation runtime cost     | `templateLoader.ts:30-128`  | Deep validation on every template load      |
 
-**Description:**  
-Pulse animation previously used `setInterval` instead of `requestAnimationFrame`:
+**Recommendation**: Consider caching validated templates or pre-validating at build time.
 
-```typescript
-// OLD (removed)
-const interval = setInterval(() => {
-  setPulsePhase((prev) => (prev + 0.05) % (Math.PI * 2));
-}, 16); // ~60fps
-```
+### 5.2 Audio System
 
-**Impact:**
+| Concern                          | Location               | Risk                                           |
+| -------------------------------- | ---------------------- | ---------------------------------------------- |
+| Safari-specific fallback         | `soundPlayer.ts:27`    | Uses `@ts-expect-error` for webkitAudioContext |
+| XMLHttpRequest for sound loading | `soundPlayer.ts:48-64` | Legacy API, less error handling than fetch     |
+| No audio fallback                | -                      | If Web Audio API fails, no sound feedback      |
 
-- May cause jank on low-end devices
-- setInterval runs even when tab is backgrounded
-- Wastes battery
+**Status**: Acceptable with monitoring - Current implementation handles common failure cases gracefully.
 
-**Remediation:**
+### 5.3 SVG Path Rendering
 
-- ~~Use `requestAnimationFrame` with visibility check~~ ✅ Implemented
-- ~~Or use CSS animations for opacity changes~~ ✅ Used rAF instead
+| Concern                      | Location                  | Risk                                              |
+| ---------------------------- | ------------------------- | ------------------------------------------------- |
+| Elliptical arc approximation | `pathRenderer.ts:355-369` | Falls back to line for elliptical arcs (rx != ry) |
+| Regex-based path parsing     | `pathRenderer.ts:93`      | May fail on complex/edge-case SVG paths           |
 
-**Status:** ✅ Resolved (2026-03-21) - Converted to requestAnimationFrame with proper cleanup
+**Current Mitigation**: Character templates only use simple paths that are fully supported.
 
----
+### 5.4 Touch Handling
 
-### CON-021: Canvas Re-render on Every State Change
-
-**Severity:** Medium  
-**Category:** Performance  
-**File:** `src/components/tracing/Canvas.tsx` (lines 251-253)
-
-**Description:**  
-Canvas schedules render on every `template` or `session` change:
-
-```typescript
-useEffect(() => {
-  scheduleRender();
-}, [scheduleRender, template, session]);
-```
-
-Each user point added triggers a full canvas redraw.
-
-**Impact:**
-
-- May impact battery on prolonged use
-- Could cause jank with complex character templates
-
-**Remediation:**
-
-- Consider throttling renders for point additions
-- Batch point updates before render
-- Profile on target device (iPad) before optimizing
-
-**Status:** Acceptable for MVP (Constitution requires 60fps)
+| Concern                                | Location                      | Risk                                   |
+| -------------------------------------- | ----------------------------- | -------------------------------------- |
+| Pointer capture release error handling | `touchHandler.ts:177-180`     | Empty catch block suppresses errors    |
+| `preventDefault` on all pointer events | `touchHandler.ts:111,136,165` | May interfere with accessibility tools |
 
 ---
 
-### CON-022: Character Data Loading Strategy
+## 6. Dependency Concerns
 
-**Severity:** Low  
-**Category:** Performance  
-**File:** `src/lib/templates/characterData.ts`
+### 6.1 Dependency Audit
 
-**Description:**  
-Characters are loaded lazily with a Map-based cache. `getCategory()` loads all 26 characters eagerly:
+| Package  | Version | Concern                                                    |
+| -------- | ------- | ---------------------------------------------------------- |
+| `konva`  | ^9.2.0  | Currently unused in codebase - only `react-konva` imported |
+| `oxlint` | ^1.56.0 | Fast but less comprehensive than ESLint                    |
+| `oxfmt`  | ^0.41.0 | Non-standard formatter, may have community adoption issues |
 
-```typescript
-export async function getCategory(category: Category): Promise<CategoryCollection> {
-  const characters = await Promise.all(
-    CHARACTER_REGISTRY[category].map((char) => loadCharacter(category, char)),
-  );
-  ...
-}
-```
+### 6.2 Unused Dependencies
 
-**Impact:**
+| Package | Status                         | Action                     |
+| ------- | ------------------------------ | -------------------------- |
+| `konva` | Imported but not used directly | Verify if needed or remove |
 
-- Initial character selection screen may show loading states
-- Memory usage spikes when entering a category
+### 6.3 Capacitor Configuration
 
-**Remediation:**
-
-- Consider preloading next/previous characters only
-- Add skeleton loading states for character grid
-- Preload all characters on app start (62 total is manageable)
-
-**Status:** Acceptable for MVP
+| Concern            | Location              | Note                                    |
+| ------------------ | --------------------- | --------------------------------------- |
+| iOS-specific paths | `capacitor.config.ts` | Platform-specific configuration present |
+| No Android config  | -                     | iOS-only mobile support                 |
 
 ---
 
-## Security Concerns
+## 7. Architectural Concerns
 
-### CON-030: Overly Broad Touch Event Prevention
+### 7.1 State Management Split
 
-**Severity:** Medium  
-**Category:** Security / Accessibility  
-**File:** `src/App.tsx` (lines 22-39)
+| Pattern                             | Location                                | Concern                                                                          | Status       |
+| ----------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------- | ------------ |
+| ~~Two state management approaches~~ | ~~`sessionStore.ts` + `useTracing.ts`~~ | ~~Store has placeholder validation, hook has real validation - divergence risk~~ | **RESOLVED** |
 
-**Description:**  
-Touch event prevention was applied to entire document, not just canvas:
+**Details**:
 
-```typescript
-// OLD (removed)
-const preventDefaultTouch = (e: Event) => {
-  if (e.target instanceof HTMLElement) {
-    if (e.target.tagName === 'BUTTON') {
-      return;
-    }
-  }
-  e.preventDefault();
-};
-```
+- `sessionStore.ts` uses Zustand for global state
+- `useTracing.ts` implements its own validation logic
+- ~~`endStroke` in store hardcodes accuracy while `useTracing` calculates it~~ **FIXED** - Store now uses real validation
 
-**Impact:**
+**Fixed**: 2026-03-21 - Both store and hook now use consistent validation logic via `strokeValidator.ts`.
 
-- May break legitimate touch interactions outside canvas
-- Accessibility issues for screen readers
-- Scroll lock affects entire page
+**Recommendation**: ~~Consolidate validation logic and ensure store and hook stay synchronized.~~ ✅ Completed - validation is now centralized in `strokeValidator.ts`.
 
-**Remediation:**
+### 7.2 Component/Hook Organization
 
-- ~~Move prevention logic to canvas element only~~ ✅ Canvas uses CSS `touch-action: none`
-- ~~Use `touch-action: none` CSS on canvas~~ ✅ Already present in Canvas.tsx
-- ~~Remove document-level listeners if possible~~ ✅ Removed document-level listeners
-
-**Status:** ✅ Resolved (2026-03-21) - Touch prevention now handled by canvas CSS
+| Issue                                                                         | Impact                                                                                                       |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Duplicate `StrokeFeedback` components                                         | `components/tracing/StrokeFeedback.tsx` and `components/feedback/StrokeFeedback.tsx` - one should be removed |
+| `components/tracing/index.ts` exists but many tracing components not exported | Incomplete module organization                                                                               |
 
 ---
 
-### CON-031: Missing Input Sanitization
+## 8. Recommendations by Priority
 
-**Severity:** Low  
-**Category:** Security  
-**Files:** Character template loading
+### High Priority (Address Soon)
 
-**Description:**  
-Character templates are loaded from JSON files. No validation of template data structure before use:
+1. ~~**Implement actual stroke validation in store** - Core feature is incomplete~~ ✅ **FIXED** 2026-03-21
+2. **Add tests for Canvas component** - Critical untested component
+3. **Resolve duplicate StrokeFeedback components** - Clean up confusion
+4. **Validate template loading paths more strictly** - Security hardening
 
-```typescript
-const template: CharacterTemplate = await response.json();
-```
+### Medium Priority (Address When Convenient)
 
-**Impact:**
+1. **Consolidate renderStroke duplication** - Reduce maintenance burden
+2. **Add missing component tests** - Improve coverage
+3. **Optimize Canvas scale/offset calculations** - Performance improvement
+4. **Review useTracing state management** - Ensure consistency
 
-- Malformed JSON could cause runtime errors
-- Template data used directly in canvas rendering
+### Low Priority (Nice to Have)
 
-**Remediation:**
-
-- Add schema validation for template JSON
-- Use Zod or similar for runtime type checking
-- Validate bounds, points array lengths, etc.
-
-**Status:** Low risk (templates are bundled assets)
+1. **Remove unused konva dependency** - Clean up
+2. **Add Android Capacitor support** - Expand platform reach
+3. **Optimize pathRenderer temporary canvas usage** - Memory efficiency
 
 ---
 
-## Fragile Areas
+## 9. File Size Analysis
 
-### CON-040: Character Template Quality
-
-**Severity:** Medium  
-**Category:** Data Quality  
-**Files:** `src/assets/characters/**/*.json`
-
-**Description:**  
-Some character templates have questionable path data. Example: lowercase 'a' has a curved path that loops back to its start point:
-
-```json
-{
-  "path": "M 50 50 Q 75 40 50 50",
-  "startPoint": { "x": 50, "y": 50 },
-  "endPoint": { "x": 50, "y": 50 }
-}
-```
-
-This creates a zero-length stroke visually.
-
-**Impact:**
-
-- Confusing user experience
-- Validation algorithm may behave unexpectedly
-
-**Remediation:**
-
-- Audit all 62 character templates
-- Verify stroke paths match intended characters
-- Test validation on actual device
-
-**Status:** Needs manual review
+| File                            | Lines | Concern                                 |
+| ------------------------------- | ----- | --------------------------------------- |
+| `pathRenderer.ts`               | 661   | Large utility file - consider splitting |
+| `generateCharacterTemplates.ts` | 516   | Build script - acceptable               |
+| `templateLoader.ts`             | 382   | Long validation logic                   |
+| `Canvas.tsx`                    | 344   | Complex component - well organized      |
+| `characterData.ts`              | 247   | Data file - acceptable                  |
+| `touchHandler.ts`               | 206   | Well-sized utility                      |
+| `useValidation.ts`              | 184   | Appropriate size                        |
+| `useTracing.ts`                 | 165   | Appropriate size                        |
+| `useCanvas.ts`                  | 169   | Appropriate size                        |
+| `sessionStore.ts`               | 189   | Appropriate size                        |
 
 ---
 
-### CON-041: Session State Synchronization
+## 10. Testing Quality
 
-**Severity:** Medium  
-**Category:** Fragility  
-**Files:**
+### 10.1 Existing Tests
 
-- `src/state/sessionStore.ts`
-- `src/hooks/useTracing.ts`
+| Test File                   | Coverage    | Quality                                |
+| --------------------------- | ----------- | -------------------------------------- |
+| `strokeValidator.test.ts`   | Unit        | Good - tests core validation algorithm |
+| `pathRenderer.test.ts`      | Unit        | Good - tests SVG parsing               |
+| `touchHandler.test.ts`      | Unit        | Good - tests pointer event handling    |
+| `tracing-flow.test.tsx`     | Integration | Good - tests user flow                 |
+| `navigation-flow.test.tsx`  | Integration | Good - tests navigation                |
+| `clear-reset-flow.test.tsx` | Integration | Good - tests session management        |
+| `CategorySelector.test.tsx` | Component   | Basic - minimal assertions             |
+| `CharacterGrid.test.tsx`    | Component   | Basic - minimal assertions             |
 
-**Description:**  
-Two different session creation patterns exist:
+### 10.2 Missing E2E Tests
 
-1. `sessionStore.createSession()` in Zustand store
-2. `useTracing.createSession()` hook-local
-
-The store is the source of truth, but `useTracing` creates independent sessions.
-
-**Impact:**
-
-- Potential state inconsistency
-- Session in hook may not reflect store state
-
-**Remediation:**
-
-- Eliminate `useTracing.ts` session creation if redundant
-- Or make hook derive from store state only
-
-**Status:** Needs architectural review
+| Flow                       | Priority |
+| -------------------------- | -------- |
+| Complete character tracing | High     |
+| Sound feedback             | Medium   |
+| Error boundary recovery    | Medium   |
+| Mobile touch interactions  | High     |
 
 ---
 
-### CON-042: SVG Path Parsing Edge Cases
+## Appendix: Quick Reference
 
-**Severity:** Low  
-**Category:** Fragility  
-**File:** `src/lib/canvas/pathRenderer.ts`
+### Files with TODO/FIXME Comments
 
-**Description:**  
-SVG path parser handles basic commands (M, L, H, V, C, Q, A, Z) but:
+- ~~`src/state/sessionStore.ts:133` - Stroke validation placeholder~~ **FIXED** 2026-03-21
+- `src/components/feedback/StrokeFeedback.tsx:4,18` - Component not implemented
 
-- Elliptical arcs (A) have fallback to line approximation
-- S (smooth bezier) not implemented
-- T (smooth quadratic) not implemented
+### Files with Console Warnings (Production)
 
-```typescript
-// Line 366-368
-} else {
-  // Approximate elliptical arc with quadratic curves
-  ctx.lineTo(x2, y2);
-}
-```
+- `src/lib/feedback/soundPlayer.ts` - 4 warnings for audio failures
+- `src/lib/templates/templateLoader.ts` - 2 warnings for template load failures
+- `src/components/layout/ErrorBoundary.tsx` - 2 error logs (development only)
 
-**Impact:**
+### Files with TypeScript Suppressions
 
-- Some character templates may not render correctly
-- Visual differences between template and rendered path
-
-**Remediation:**
-
-- Test all character templates for path command compatibility
-- Implement remaining SVG commands if needed
-- Document unsupported commands
-
-**Status:** Needs testing
-
----
-
-## Known Issues
-
-### CON-050: E2E Tests Not Implemented
-
-**Severity:** Low  
-**Category:** Testing Gap
-
-**Description:**  
-Playwright is configured (`playwright.config.ts`, `@playwright/test` in deps) but no E2E tests exist.
-
-**Impact:**
-
-- No automated testing of full user flows
-- Manual testing burden increased
-
-**Status:** Planned but not implemented
-
----
-
-### CON-051: Spec Status is "Draft"
-
-**Severity:** Low  
-**Category:** Process
-
-**File:** `specs/001-handwriting-tracing/spec.md` (line 5)
-
-**Description:**  
-Feature specification has status "Draft" despite implementation underway.
-
-**Impact:**
-
-- Requirements may change
-- Unclear scope boundaries
-
-**Status:** Process issue, should finalize spec
-
----
-
-## Recommendations Summary
-
-| ID      | Priority | Category     | Estimated Fix | Status                   |
-| ------- | -------- | ------------ | ------------- | ------------------------ |
-| CON-001 | High     | Code Quality | 1 hour        | ✅ Fixed                 |
-| CON-003 | High     | Bug          | 15 minutes    | ⚠️ N/A (already present) |
-| CON-020 | Medium   | Performance  | 30 minutes    | ✅ Fixed                 |
-| CON-030 | Medium   | Security     | 30 minutes    | ✅ Fixed                 |
-| CON-040 | Medium   | Data Quality | 4 hours       | ⏳ Pending               |
-| CON-041 | Medium   | Fragility    | 2 hours       | ⏳ Pending               |
-| CON-002 | Medium   | Code Quality | 1 hour        | ✅ Fixed                 |
-| CON-004 | Medium   | Code Quality | 2 hours       | ⏳ Pending               |
-
-**Total estimated effort:** ~11 hours  
-**Completed:** 4 items (~3 hours)  
-**Remaining:** 4 items (~8 hours)
-
----
-
-## Constitution Compliance
-
-Reviewing concerns against the [Constitution](./constitution.md):
-
-| Principle                    | Status       | Notes                                      |
-| ---------------------------- | ------------ | ------------------------------------------ |
-| Touch-First (60fps)          | ✅ Compliant | Canvas renders with requestAnimationFrame  |
-| Child-Centric (44px targets) | ✅ Compliant | UI_CONFIG.MIN_TOUCH_TARGET = 44            |
-| Immediate Feedback           | ⚠️ Partial   | Feedback exists but StrokeFeedback is TODO |
-| Simplicity (MVP scope)       | ✅ Compliant | No auth, ads, or gamification              |
-
----
-
-_Concerns analysis: 2026-03-20_  
-_Fixes applied: 2026-03-21_
+- `src/lib/feedback/soundPlayer.ts:27` - `@ts-expect-error` for Safari webkitAudioContext
+- Test files - `@typescript-eslint/no-explicit-any` for mocking

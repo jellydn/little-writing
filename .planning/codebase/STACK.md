@@ -1,156 +1,180 @@
-# STACK.md - Technology Stack
+# Technology Stack
 
-**Project**: Little Writing - Kids Handwriting Tracing App  
-**Last Updated**: 2026-03-20
+> Technology stack analysis for Little Writing - Kids Handwriting Tracing App
+> Generated: 2026-03-21
+
+## Overview
+
+A client-side React application for children's handwriting practice. Built as a PWA with optional native iOS deployment via Capacitor. No backend or external APIs required.
+
+---
 
 ## Languages
 
-| Language   | Version     | Purpose                                 |
-| ---------- | ----------- | --------------------------------------- |
-| TypeScript | 5.3.3       | Primary language - type-safe JavaScript |
-| HTML       | HTML5       | Markup (index.html)                     |
-| CSS        | CSS Modules | Component-scoped styling                |
+| Language   | Version | Purpose                                |
+| ---------- | ------- | -------------------------------------- |
+| TypeScript | 5.3.3   | Primary language (strict mode enabled) |
+| CSS3       | -       | Styling with CSS Modules               |
+| HTML5      | -       | Index template and semantic markup     |
 
-## Runtime & Environment
+---
 
-- **Runtime**: Browser (Web) via Vite dev server
-- **Target**: ES2020 (JavaScript/TypeScript compilation target)
-- **Module System**: ESNext with bundler resolution
+## Runtime
 
-## Core Frameworks
+| Runtime | Version | Purpose                           |
+| ------- | ------- | --------------------------------- |
+| Bun     | Latest  | Package manager and script runner |
+| Node.js | ^18+    | Compatible runtime (via Bun)      |
 
-| Framework   | Version | Purpose                        |
-| ----------- | ------- | ------------------------------ |
-| React       | 18.2.0  | UI component framework         |
-| react-konva | 18.2.10 | Canvas rendering with Konva.js |
-| konva       | 9.2.0   | 2D canvas library for drawing  |
-| Zustand     | 4.4.7   | Lightweight state management   |
+---
 
-## Build & Development Tools
+## Core Frameworks & Libraries
 
-| Tool                 | Version | Purpose                       |
-| -------------------- | ------- | ----------------------------- |
-| Vite                 | 6       | Build tool and dev server     |
-| @vitejs/plugin-react | 4       | React plugin for Vite         |
-| TypeScript           | 5.3.3   | Type checking and compilation |
+### Production Dependencies
 
-## Mobile Framework
+| Package     | Version  | Purpose                                                                    |
+| ----------- | -------- | -------------------------------------------------------------------------- |
+| react       | ^18.2.0  | UI framework                                                               |
+| react-dom   | ^18.2.0  | React DOM renderer                                                         |
+| konva       | ^9.2.0   | HTML5 Canvas library (alternative considered)                              |
+| react-konva | ^18.2.10 | React bindings for Konva — used for canvas rendering in CharacterGuide.tsx |
+| zustand     | ^4.4.7   | State management                                                           |
 
-| Framework       | Version | Purpose                      |
-| --------------- | ------- | ---------------------------- |
-| Capacitor       | 6.0.0   | Native iOS/Android wrapper   |
-| @capacitor/cli  | 6.0.0   | Capacitor command-line tools |
-| @capacitor/core | 6.0.0   | Capacitor runtime            |
-| @capacitor/ios  | 6.0.0   | iOS native platform          |
+### Build Toolchain
 
-## Testing Stack
+| Package              | Version | Purpose                        |
+| -------------------- | ------- | ------------------------------ |
+| vite                 | 6       | Development server and bundler |
+| @vitejs/plugin-react | 4       | React HMR and JSX transform    |
+| typescript           | ^5.3.3  | Type checking                  |
 
-| Tool                        | Version | Purpose                    |
-| --------------------------- | ------- | -------------------------- |
-| Vitest                      | 1.1.0   | Unit and component testing |
-| @vitest/coverage-v8         | 1.6.0   | V8-based code coverage     |
-| Playwright                  | 1.40.1  | End-to-end browser testing |
-| @playwright/test            | 1.58.2  | Playwright test framework  |
-| @testing-library/react      | 14.1.2  | React component testing    |
-| @testing-library/jest-dom   | 6.1.4   | DOM assertion matchers     |
-| @testing-library/user-event | 14.5.1  | Simulate user interactions |
-| jsdom                       | 23.0.1  | DOM environment for tests  |
+---
 
-## Code Quality Tools
+## Development Tools
 
-| Tool   | Version | Purpose                   |
-| ------ | ------- | ------------------------- |
-| oxlint | 1.56.0  | Linting (based on ESLint) |
-| oxfmt  | 0.41.0  | Code formatting           |
+### Testing
 
-## Package Manager
+| Package                     | Version | Purpose                      |
+| --------------------------- | ------- | ---------------------------- |
+| vitest                      | ^1.1.0  | Unit/integration test runner |
+| @vitest/coverage-v8         | ^1.6.0  | Code coverage                |
+| @testing-library/react      | ^14.1.2 | React component testing      |
+| @testing-library/jest-dom   | ^6.1.4  | DOM assertions               |
+| @testing-library/user-event | ^14.5.1 | User interaction simulation  |
+| jsdom                       | ^23.0.1 | DOM environment for tests    |
+| playwright                  | ^1.40.1 | E2E testing                  |
+| @playwright/test            | ^1.58.2 | Playwright test runner       |
 
-- **Primary**: Bun (for scripts and dev)
-- **Secondary**: pnpm (for linting and formatting via AGENTS.md)
+### Code Quality
+
+| Package | Version | Purpose                      |
+| ------- | ------- | ---------------------------- |
+| oxlint  | ^1.56.0 | JavaScript/TypeScript linter |
+| oxfmt   | ^0.41.0 | Code formatter               |
+
+### Mobile Development
+
+| Package         | Version | Purpose              |
+| --------------- | ------- | -------------------- |
+| @capacitor/core | ^6.0.0  | Native app runtime   |
+| @capacitor/ios  | ^6.0.0  | iOS platform support |
+| @capacitor/cli  | ^6.0.0  | Capacitor CLI tools  |
+
+---
 
 ## Configuration Files
 
-| File                   | Purpose                                 |
-| ---------------------- | --------------------------------------- |
-| `tsconfig.json`        | TypeScript configuration (strict mode)  |
-| `tsconfig.node.json`   | TypeScript config for Vite config files |
-| `vite.config.ts`       | Vite build configuration                |
-| `vitest.config.ts`     | Vitest test configuration               |
-| `playwright.config.ts` | Playwright E2E configuration            |
-| `capacitor.config.ts`  | Capacitor mobile app configuration      |
-| `package.json`         | Dependencies and scripts                |
-| `index.html`           | Application entry HTML                  |
-| `justfile`             | Task runner recipes                     |
+### TypeScript
 
-## TypeScript Configuration
+| File                 | Purpose                                                |
+| -------------------- | ------------------------------------------------------ |
+| `tsconfig.json`      | Main TypeScript config (strict mode, ES2020, DOM libs) |
+| `tsconfig.node.json` | Node-specific config for Vite                          |
 
-```json
-{
-  "compilerOptions": {
-    "strict": true,
-    "target": "ES2020",
-    "module": "ESNext",
-    "jsx": "react-jsx",
-    "moduleResolution": "bundler",
-    "paths": { "@/*": ["./src/*"] }
-  }
-}
-```
+### Vite
+
+| File               | Purpose                                           |
+| ------------------ | ------------------------------------------------- |
+| `vite.config.ts`   | Dev server, build, path aliases (@/), CSS modules |
+| `vitest.config.ts` | Test configuration (jsdom, coverage, aliases)     |
+
+### Code Quality
+
+| File             | Purpose                                        |
+| ---------------- | ---------------------------------------------- |
+| `.oxlintrc.json` | Lint rules (react, typescript plugins)         |
+| `.oxfmtrc.json`  | Format config (semi, singleQuote, tabWidth: 2) |
+
+### Mobile
+
+| File                   | Purpose                                      |
+| ---------------------- | -------------------------------------------- |
+| `capacitor.config.ts`  | Capacitor config (appId, webDir, iOS scheme) |
+| `ios/App/Podfile.lock` | iOS dependencies (Capacitor 6.2.1)           |
+
+### CI/CD
+
+| File                           | Purpose                               |
+| ------------------------------ | ------------------------------------- |
+| `.github/workflows/ci.yml`     | Quality checks, unit tests, E2E tests |
+| `.github/workflows/deploy.yml` | Build and deploy to GitHub Pages      |
+| `renovate.json`                | Dependency update automation          |
+
+### Task Runner
+
+| File       | Purpose                                     |
+| ---------- | ------------------------------------------- |
+| `justfile` | Task runner recipes (dev, test, build, ios) |
+
+---
 
 ## Project Structure
 
 ```
 src/
-├── App.tsx                 # Main app component
-├── main.tsx               # React entry point
-├── components/             # React UI components
-│   ├── canvas/            # Canvas-related (Konva)
-│   ├── feedback/           # Visual/haptic feedback
-│   ├── layout/             # App layout (AppLayout, ErrorBoundary)
-│   ├── navigation/         # Navigation components
-│   ├── screens/            # Screen components
-│   ├── tracing/            # Tracing UI components
-│   └── ui/                # Reusable UI primitives (Button, Card)
-├── hooks/                  # Custom React hooks
-├── lib/                    # Business logic
-│   ├── canvas/            # Canvas utilities (validation, rendering, touch)
-│   ├── feedback/          # Feedback systems (visual, sound)
-│   └── templates/         # Character template loading
-├── state/                  # Zustand store
-├── styles/                 # Theme and animations
-├── types/                  # TypeScript type definitions
-└── assets/                # Static assets
+├── components/          # React components
+│   ├── feedback/        # Feedback components
+│   ├── layout/          # Layout components
+│   ├── navigation/      # Navigation components
+│   ├── screens/         # Screen-level components
+│   ├── tracing/         # Canvas and tracing components
+│   └── ui/              # Reusable UI components
+├── hooks/               # Custom React hooks
+├── lib/                 # Utility libraries
+│   ├── canvas/          # Canvas rendering and validation
+│   ├── feedback/        # Sound and visual feedback
+│   └── templates/       # Character template data
+├── state/               # Zustand store
+├── styles/              # Global styles and theme
+├── types/               # TypeScript type definitions
+└── assets/              # Static assets (sounds, characters)
 
 tests/
-├── unit/                  # Unit tests
-├── component/             # Component tests
-├── integration/           # Integration tests
-└── e2e/                   # End-to-end tests
-
-public/
-├── sounds/               # Audio feedback files
-└── icons/                # App icons
+├── unit/                # Unit tests
+├── component/           # Component tests
+├── integration/         # Integration tests
+├── e2e/                 # Playwright E2E tests
+└── setup.ts             # Test setup and mocks
 ```
 
-## Key Dependencies Summary
+---
 
-### Runtime Dependencies (3)
+## Key Technical Decisions
 
-- `react` - UI framework
-- `react-dom` - React DOM renderer
-- `react-konva` - Konva bindings for React
-- `konva` - Canvas drawing library
-- `zustand` - State management
+1. **No Backend Required**: Pure client-side application with no server dependencies
+2. **State Management**: Zustand for simple, lightweight global state
+3. **Canvas Rendering**: HTML5 Canvas API (not Konva, despite dependency)
+4. **Mobile Strategy**: Capacitor for native iOS wrapper
+5. **Audio**: Web Audio API for sound feedback (no external audio libraries)
+6. **Storage**: No persistent storage; in-memory session state only
+7. **Styling**: CSS Modules + global CSS (no CSS-in-JS library)
 
-### Dev Dependencies (14)
+---
 
-- Build tools (Vite, TypeScript)
-- Testing (Vitest, Playwright, Testing Library)
-- Mobile (Capacitor)
-- Code quality (oxlint, oxfmt)
+## Browser APIs Used
 
-## Node.js Compatibility
-
-- Targets modern browsers (ES2020+)
-- Requires bundler for module resolution
-- No server-side Node.js dependencies
+- **Canvas API**: 2D rendering context for drawing
+- **Pointer Events**: Touch, mouse, and stylus input handling
+- **Web Audio API**: Sound playback and audio context management
+- **RequestAnimationFrame**: Smooth 60fps canvas rendering
+- **Intersection Observer**: Mocked in tests only

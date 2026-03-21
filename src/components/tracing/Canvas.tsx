@@ -15,9 +15,10 @@
  * Contract: specs/001-handwriting-tracing/contracts/ui-contracts.md
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useCanvas } from '@/hooks/useCanvas';
 import { renderSVGPath } from '@/lib/canvas/pathRenderer';
+import { renderStroke } from '@/lib/canvas/renderStroke';
 import { createPointerHandlers } from '@/lib/canvas/touchHandler';
 import { COLORS, UI_CONFIG } from '@/styles/theme';
 import type { CharacterTemplate, DrawingSession, Point } from '@/types';
@@ -105,34 +106,6 @@ function calculateOffset(
   };
 }
 
-/**
- * Renders a freehand stroke from point array
- */
-function renderStroke(
-  ctx: CanvasRenderingContext2D,
-  points: Point[],
-  color: string,
-  lineWidth: number
-): void {
-  if (points.length === 0) return;
-
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lineWidth;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-
-  for (let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
-  }
-
-  ctx.stroke();
-  ctx.restore();
-}
-
 export const Canvas: React.FC<CanvasProps> = ({
   template,
   session,
@@ -146,21 +119,19 @@ export const Canvas: React.FC<CanvasProps> = ({
   const renderFrameRef = useRef<number | null>(null);
 
   // Calculate scale and offset for template
-  const scale = calculateScale(template, width, height);
-  const offset = calculateOffset(template, width, height, scale);
+  const scale = useMemo(
+    () => calculateScale(template, width, height),
+    [template.bounds.width, template.bounds.height, width, height]
+  );
+  const offset = useMemo(
+    () => calculateOffset(template, width, height, scale),
+    [template.bounds.width, template.bounds.height, width, height, scale]
+  );
 
   // Render on session/template change
   useEffect(() => {
     const canvasCtx = canvasRef.current?.getContext('2d');
     if (!canvasCtx) return;
-
-    const currentScale = calculateScale(template, width, height);
-    const currentOffset = calculateOffset(
-      template,
-      width,
-      height,
-      currentScale
-    );
 
     const render = () => {
       // Clear canvas
@@ -196,9 +167,9 @@ export const Canvas: React.FC<CanvasProps> = ({
         renderSVGPath(canvasCtx, stroke.path, {
           strokeColor,
           strokeWidth: UI_CONFIG.GUIDE_LINE_WIDTH,
-          scale: currentScale,
-          offsetX: currentOffset.x,
-          offsetY: currentOffset.y,
+          scale,
+          offsetX: offset.x,
+          offsetY: offset.y,
         });
 
         canvasCtx.restore();
@@ -215,20 +186,13 @@ export const Canvas: React.FC<CanvasProps> = ({
               : COLORS.incorrect;
 
         const canvasPoints = stroke.points.map((p) =>
-          templateToCanvasPoint(
-            p,
-            currentOffset.x,
-            currentOffset.y,
-            currentScale
-          )
+          templateToCanvasPoint(p, offset.x, offset.y, scale)
         );
 
-        renderStroke(
-          canvasCtx,
-          canvasPoints,
-          strokeColor,
-          UI_CONFIG.USER_STROKE_WIDTH
-        );
+        renderStroke(canvasCtx, canvasPoints, {
+          color: strokeColor,
+          lineWidth: UI_CONFIG.USER_STROKE_WIDTH,
+        });
       });
 
       renderFrameRef.current = null;
@@ -245,7 +209,7 @@ export const Canvas: React.FC<CanvasProps> = ({
         renderFrameRef.current = null;
       }
     };
-  }, [canvasRef, template, session, width, height]);
+  }, [canvasRef, template, session, width, height, scale, offset]);
 
   // Create pointer handlers with coordinate conversion
   const pointerHandlersRef = useRef<ReturnType<

@@ -8,11 +8,12 @@
  */
 
 import type React from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { NavButtons } from '@/components/navigation/NavButtons';
+import { Canvas } from '@/components/tracing/Canvas';
+import { SuccessAnimation } from '@/components/tracing/SuccessAnimation';
 import { useCanvasSize } from '@/hooks/useCanvasSize';
-import type { CharacterTemplate, DrawingSession, Point } from '../../types';
-import { NavButtons } from '../navigation/NavButtons';
-import { Canvas } from '../tracing/Canvas';
-import { SuccessAnimation } from '../tracing/SuccessAnimation';
+import type { CharacterTemplate, DrawingSession, Point } from '@/types';
 import './TracingScreen.css';
 
 interface TracingScreenProps {
@@ -46,6 +47,25 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
   );
   const hasNext = currentIndex < categoryCharacters.length - 1;
   const hasPrevious = currentIndex > 0;
+
+  // Ref to store timeout ID for cleanup
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount to prevent race conditions
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Memoized callback to prevent re-render instability in SuccessAnimation
+  const handleAnimationComplete = useCallback(() => {
+    if (hasNext) {
+      timeoutRef.current = setTimeout(onNext, 500);
+    }
+  }, [hasNext, onNext]);
 
   return (
     <div className="tracing-screen">
@@ -112,7 +132,7 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
 
         <SuccessAnimation
           isVisible={session.isComplete}
-          onComplete={() => {}}
+          onComplete={handleAnimationComplete}
         />
       </main>
 

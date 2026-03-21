@@ -419,6 +419,15 @@ function findArcCenter(
  * @param sampleRate - Number of samples per unit length (default: 10)
  * @returns Array of points along the path
  */
+let pooledCanvas: HTMLCanvasElement | null = null;
+
+function getTempCanvas(): HTMLCanvasElement {
+  if (!pooledCanvas) {
+    pooledCanvas = document.createElement('canvas');
+  }
+  return pooledCanvas;
+}
+
 export function parseSVGPath(
   pathData: string,
   sampleRate: number = 10
@@ -426,8 +435,8 @@ export function parseSVGPath(
   const commands = parsePathCommands(pathData);
   const points: Point[] = [];
 
-  // Create a temporary canvas to measure path lengths
-  const canvas = document.createElement('canvas');
+  // Reuse pooled canvas to avoid repeated allocations
+  const canvas = getTempCanvas();
   const ctx = canvas.getContext('2d');
   if (!ctx) return points;
 
