@@ -139,10 +139,11 @@
 ^- [x] T054 [P] Add error boundaries in src/components/layout/ErrorBoundary.tsx (graceful error handling)
 ^- [x] T055 Configure Capacitor iOS deployment in capacitor.config.ts (app name, bundle ID, version)
 ^- [x] T056 Run `npx cap sync ios` and verify iOS project structure
+
 - [x] T057 Test on iPad Simulator or device (touch input, stylus support, 60fps performance)
-^- [x] T058 [P] Add app icons in public/icons/ for Capacitor (multiple sizes required)
-^- [x] T059 Run typecheck and lint: `bun run typecheck && bun run lint`
-^- [x] T060 Verify constitution compliance: touch targets ≥44x44, 60fps canvas, ±25px tolerance, bright colors, minimal UI
+      ^- [x] T058 [P] Add app icons in public/icons/ for Capacitor (multiple sizes required)
+      ^- [x] T059 Run typecheck and lint: `bun run typecheck && bun run lint`
+      ^- [x] T060 Verify constitution compliance: touch targets ≥44x44, 60fps canvas, ±25px tolerance, bright colors, minimal UI
 
 ---
 

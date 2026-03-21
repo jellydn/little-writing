@@ -42,20 +42,22 @@
   border: none;
   border-radius: 24px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .category-grid button:nth-child(1) {
-  background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
 }
 
 .category-grid button:nth-child(2) {
-  background: linear-gradient(135deg, #4ECDC4 0%, #26B5AB 100%);
+  background: linear-gradient(135deg, #4ecdc4 0%, #26b5ab 100%);
 }
 
 .category-grid button:nth-child(3) {
-  background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+  background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
 }
 
 .category-icon {
@@ -82,7 +84,7 @@
 }
 
 .category-grid button:focus-visible {
-  outline: 4px solid #2196F3;
+  outline: 4px solid #2196f3;
   outline-offset: 4px;
 }
 

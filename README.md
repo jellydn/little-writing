@@ -156,7 +156,6 @@ bun run dev -- --port 5174
 - [Vitest Documentation](https://vitest.dev/)
 - [Zustand Documentation](https://github.com/pmndrs/zustand)
 
-
 ## Author
 
 👤 **Dung Huynh**

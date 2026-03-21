@@ -15,29 +15,30 @@ characters/
 
 ```jsonc
 {
-  "character": "A",            // The character itself
-  "category": "uppercase",     // uppercase | lowercase | number
-  "displayName": "A",          // Human-readable name (e.g. "Bee", "Zero")
+  "character": "A", // The character itself
+  "category": "uppercase", // uppercase | lowercase | number
+  "displayName": "A", // Human-readable name (e.g. "Bee", "Zero")
   "bounds": {
     "width": 100,
     "height": 100,
-    "viewBox": "0 0 100 100"
+    "viewBox": "0 0 100 100",
   },
   "strokes": [
     {
-      "id": 1,                 // Stroke order (1-based)
+      "id": 1, // Stroke order (1-based)
       "path": "M 50 20 L 20 80", // SVG path data
       "startPoint": { "x": 50, "y": 20 },
       "endPoint": { "x": 20, "y": 80 },
-      "guidePoints": [         // Sample points along the path for tracing
+      "guidePoints": [
+        // Sample points along the path for tracing
         { "x": 50, "y": 20 },
         { "x": 40, "y": 40 },
         { "x": 30, "y": 60 },
-        { "x": 20, "y": 80 }
-      ]
-    }
+        { "x": 20, "y": 80 },
+      ],
+    },
   ],
-  "totalStrokes": 1
+  "totalStrokes": 1,
 }
 ```
 
@@ -53,12 +54,12 @@ characters/
 
 Standard SVG path commands are used:
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `M x y` | Move to | `M 50 20` |
-| `L x y` | Line to | `L 80 80` |
-| `Q cx cy x y` | Quadratic curve | `Q 75 15 75 35` |
-| `A rx ry rot large-arc sweep x y` | Arc | `A 30 30 0 1 1 50 80` |
+| Command                           | Description     | Example               |
+| --------------------------------- | --------------- | --------------------- |
+| `M x y`                           | Move to         | `M 50 20`             |
+| `L x y`                           | Line to         | `L 80 80`             |
+| `Q cx cy x y`                     | Quadratic curve | `Q 75 15 75 35`       |
+| `A rx ry rot large-arc sweep x y` | Arc             | `A 30 30 0 1 1 50 80` |
 
 ## Guide Points
 

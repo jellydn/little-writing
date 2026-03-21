@@ -111,11 +111,11 @@ npx cap open ios           # Open in Xcode
 ### Imports
 
 ```typescript
-import React, { useState } from "react";
-import { validateStroke } from "@/lib/canvas/strokeValidator";
-import type { Point, StrokePath } from "@/types";
-import { Button } from "../ui/Button";
-import styles from "./MyComponent.module.css";
+import React, { useState } from 'react';
+import { validateStroke } from '@/lib/canvas/strokeValidator';
+import type { Point, StrokePath } from '@/types';
+import { Button } from '../ui/Button';
+import styles from './MyComponent.module.css';
 ```
 
 - Use `@/` alias for `src/`
@@ -186,11 +186,11 @@ tests/
 ### Unit/Integration Tests (Vitest)
 
 ```typescript
-import { describe, it, expect } from "vitest";
-import { myFunction } from "@/lib/myModule";
+import { describe, it, expect } from 'vitest';
+import { myFunction } from '@/lib/myModule';
 
-describe("myFunction", () => {
-  it("should do something", () => {
+describe('myFunction', () => {
+  it('should do something', () => {
     const result = myFunction(input);
     expect(result).toBe(expected);
   });
@@ -214,10 +214,10 @@ describe('MyComponent', () => {
 ### E2E Tests (Playwright)
 
 ```typescript
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
 
-test("user can trace a character", async ({ page }) => {
-  await page.goto("/");
+test('user can trace a character', async ({ page }) => {
+  await page.goto('/');
   // ...
 });
 ```
