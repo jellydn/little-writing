@@ -1,8 +1,8 @@
-import { type CapacitorConfig } from '@capacitor/cli';
+import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.handwriting.tracing',
-  appName: 'Handwriting Tracing',
+  appId: 'com.productsway.littlewriting',
+  appName: 'Little Writing',
   webDir: 'dist',
   ios: {
     scheme: 'App',
