@@ -1,0 +1,11 @@
+# Pre-commit hooks configuration
+# Runs quality checks before each commit
+
+[[repos]]
+repo = "local"
+hooks = [
+  { id = "typecheck", name = "TypeScript Type Check", entry = "bun run typecheck", language = "system", pass_filenames = false, always_run = true },
+  { id = "lint", name = "Lint Check", entry = "bun run lint", language = "system", pass_filenames = false, always_run = true },
+  { id = "format-check", name = "Format Check", entry = "bun run format:check", language = "system", pass_filenames = false, always_run = true },
+  { id = "unit-tests", name = "Unit Tests", entry = "bun run test:unit", language = "system", pass_filenames = false, always_run = true },
+]
