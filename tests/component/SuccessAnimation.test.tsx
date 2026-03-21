@@ -1,6 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { SuccessAnimation } from '@/components/tracing/SuccessAnimation';
 
 vi.mock('@/lib/feedback/soundPlayer', () => ({
@@ -64,11 +65,13 @@ describe('SuccessAnimation', () => {
 
   it('should render confetti particles when visible', () => {
     const { container } = render(<SuccessAnimation isVisible={true} />);
-    // 12 confetti particles are created inside the success-animation div
     const successDiv = container.querySelector('.success-animation');
     expect(successDiv).toBeInTheDocument();
-    // The animation div contains multiple child elements (star, confetti, text)
-    expect(successDiv?.children.length).toBeGreaterThan(1);
+
+    // Confetti particles are rendered as div elements with absolute positioning
+    // They are siblings to the star container and success text
+    // We expect 12 confetti particles + 1 star container + 1 text div + 1 style tag = 15 children
+    expect(successDiv?.children.length).toBe(15);
   });
 
   it('should not render star when not visible', () => {

@@ -1,6 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { StrokeFeedback } from '@/components/tracing/StrokeFeedback';
 import type { Stroke } from '@/types';
 

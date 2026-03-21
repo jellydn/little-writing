@@ -1,6 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import React from 'react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type React from 'react';
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
+
 import { ErrorBoundary } from '@/components/layout/ErrorBoundary';
 
 // Component that throws an error on demand
@@ -25,6 +34,10 @@ describe('ErrorBoundary', () => {
 
   afterEach(() => {
     consoleErrorSpy.mockClear();
+  });
+
+  afterAll(() => {
+    consoleErrorSpy.mockRestore();
   });
 
   it('should render children when no error occurs', () => {

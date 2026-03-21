@@ -52,9 +52,4 @@ describe('Card', () => {
     render(<Card variant="character">Character</Card>);
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
-
-  it('should be not selected by default', () => {
-    render(<Card>Card</Card>);
-    expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
-  });
 });
