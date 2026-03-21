@@ -23,9 +23,9 @@ test.describe('Tracing Screen', () => {
   });
 
   test('should show stroke progress indicator', async ({ page }) => {
-    const progress = page.locator('.progress-indicator');
+    const progress = page.locator('.progress-indicator span');
     await expect(progress).toBeVisible();
-    await expect(progress).toContainText('Stroke 1 of');
+    await expect(progress).toContainText('Start with stroke 1 of');
   });
 
   test('should navigate back to character selection', async ({ page }) => {
