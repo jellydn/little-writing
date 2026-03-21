@@ -8,6 +8,7 @@
  */
 
 import type React from 'react';
+import { useEffect, useRef } from 'react';
 import { useCanvasSize } from '@/hooks/useCanvasSize';
 import type { CharacterTemplate, DrawingSession, Point } from '../../types';
 import { NavButtons } from '../navigation/NavButtons';
@@ -46,6 +47,18 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
   );
   const hasNext = currentIndex < categoryCharacters.length - 1;
   const hasPrevious = currentIndex > 0;
+
+  // Ref to store timeout ID for cleanup
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount to prevent race conditions
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="tracing-screen">
@@ -115,7 +128,7 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
           onComplete={() => {
             // Auto-advance to next character after success animation
             if (hasNext) {
-              setTimeout(onNext, 500);
+              timeoutRef.current = setTimeout(onNext, 500);
             }
           }}
         />
