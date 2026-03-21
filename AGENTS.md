@@ -26,26 +26,25 @@ bunx vitest src/path/file.test.ts
 # All unit/component/integration tests
 bunx vitest --run
 
-# Interactive/watch mode
-bunx vitest
+# Watch mode
 bunx vitest --watch src/path/file.test.ts
 
 # Coverage
 bunx vitest --coverage
 
 # E2E tests
-bunx playwright install --with-deps chromium  # First time setup
-bun run test:e2e           # Run e2e tests
-bun run test:e2e:ui        # Run with UI
+bunx playwright install --with-deps chromium
+bun run test:e2e            # Run e2e tests
+bun run test:e2e:ui         # Run with UI
 ```
 
 ### Code Quality
 
 ```bash
-bun run lint               # oxlint (see .oxlintrc.json)
-bun run format             # oxfmt (see .oxfmtrc.json)
-bun run format:check       # Check formatting without writing
-bun run typecheck          # tsc --noEmit
+bun run lint                # oxlint (see .oxlintrc.json)
+bun run format              # oxfmt (see .oxfmtrc.json)
+bun run format:check        # Check formatting without writing
+bun run typecheck           # tsc --noEmit
 ```
 
 ### Quality Gate (before commit)
@@ -57,18 +56,11 @@ bunx vitest --run && bun run lint && bun run typecheck
 ### Justfile Recipes
 
 ```bash
-just dev                   # Start dev server
-just test-unit            # Run tests once
-just test-watch           # Watch mode
-just test-e2e             # Run e2e tests
-just quality              # All quality checks
-```
-
-### Capacitor iOS
-
-```bash
-npx cap sync               # Sync web build to iOS
-npx cap open ios           # Open in Xcode
+just dev                    # Start dev server
+just test-unit              # Run tests once
+just test-watch             # Watch mode
+just test-e2e               # Run e2e tests
+just quality                # All quality checks
 ```
 
 ---
@@ -90,13 +82,7 @@ npx cap open ios           # Open in Xcode
 - One component per file, filename = component name
 - Use `React.FC<Props>` type for components
 
-### JSDoc Comments
-
-- Add JSDoc for public functions and complex logic
-- Include `@param`, `@returns` tags
-- Describe algorithms or reference specs
-
-### Naming
+### Naming Conventions
 
 | Element     | Convention       | Example                   |
 | ----------- | ---------------- | ------------------------- |
@@ -123,7 +109,7 @@ import styles from './MyComponent.module.css';
 - Group imports: React > external > internal (@/) > relative
 - Type imports use `import type`
 
-### Formatting (oxfmt - see .oxfmtrc.json)
+### Formatting (oxfmt)
 
 - Semicolons: required
 - Single quotes
@@ -133,7 +119,7 @@ import styles from './MyComponent.module.css';
 - Print width: 80
 - End of line: lf
 
-### Linting (oxlint - see .oxlintrc.json)
+### Linting (oxlint)
 
 - Plugins: react, typescript
 - React version: 18.2.0
@@ -148,78 +134,31 @@ import styles from './MyComponent.module.css';
 - Never leave `console.log`; only `console.warn`/`console.error`
 - Use ErrorBoundary for component errors
 
+### JSDoc
+
+- Add JSDoc for public functions and complex logic
+- Include `@param`, `@returns` tags
+
 ---
 
 ## Project Structure
 
 ```
 src/
-├── components/
-│   ├── feedback/        # Feedback components
-│   ├── layout/          # Layout components
-│   ├── navigation/      # Navigation components
-│   ├── screens/         # Screen components
-│   ├── tracing/         # Tracing components
-│   └── ui/              # Reusable UI components
+├── components/          # feedback/, layout/, navigation/, screens/, tracing/, ui/
 ├── hooks/               # Custom React hooks
-├── lib/
-│   ├── canvas/          # Canvas utilities
-│   ├── feedback/        # Feedback utilities
-│   └── templates/       # Character templates
+├── lib/                 # canvas/, feedback/, templates/
 ├── state/               # Zustand store
 ├── styles/              # theme.ts, animations.ts
 ├── types/               # Type definitions
 └── assets/              # Static assets
 
 tests/
-├── component/           # Component tests
-├── e2e/                 # E2E tests (Playwright)
-├── integration/         # Integration tests
 ├── unit/                # Unit tests
+├── component/           # Component tests
+├── integration/         # Integration tests
+├── e2e/                 # E2E tests (Playwright)
 └── setup.ts             # Test setup
-```
-
----
-
-## Testing Patterns
-
-### Unit/Integration Tests (Vitest)
-
-```typescript
-import { describe, it, expect } from 'vitest';
-import { myFunction } from '@/lib/myModule';
-
-describe('myFunction', () => {
-  it('should do something', () => {
-    const result = myFunction(input);
-    expect(result).toBe(expected);
-  });
-});
-```
-
-### Component Tests (React Testing Library)
-
-```typescript
-import { render, screen, fireEvent } from '@testing-library/react';
-import { MyComponent } from './MyComponent';
-
-describe('MyComponent', () => {
-  it('should render correctly', () => {
-    render(<MyComponent />);
-    expect(screen.getByRole('button')).toBeInTheDocument();
-  });
-});
-```
-
-### E2E Tests (Playwright)
-
-```typescript
-import { test, expect } from '@playwright/test';
-
-test('user can trace a character', async ({ page }) => {
-  await page.goto('/');
-  // ...
-});
 ```
 
 ---
@@ -257,14 +196,3 @@ test('user can trace a character', async ({ page }) => {
 | Lint Config   | `.oxlintrc.json`                    |
 | Format Config | `.oxfmtrc.json`                     |
 | Justfile      | `justfile`                          |
-
----
-
-## Vitest Configuration
-
-- Environment: `jsdom`
-- Globals: enabled
-- Setup: `tests/setup.ts`
-- Test patterns: `tests/{unit,component,integration}/**/*.test.ts`
-- Excludes: `tests/e2e/**`
-- Coverage: v8 provider
