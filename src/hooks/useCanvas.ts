@@ -10,6 +10,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { renderSVGPath, type RenderOptions } from '../lib/canvas/pathRenderer';
+import { renderStroke } from '../lib/canvas/renderStroke';
 
 /**
  * Renderable element types for the canvas
@@ -118,7 +119,12 @@ export function useCanvas(props: UseCanvasProps): UseCanvasReturn {
         } else if (element.type === 'path') {
           renderSVGPath(ctx, element.pathData, element.options);
         } else if (element.type === 'stroke') {
-          renderStroke(ctx, element.points, element.options);
+          renderStroke(ctx, element.points, {
+            color: element.options?.strokeColor,
+            lineWidth: element.options?.strokeWidth,
+            lineCap: element.options?.lineCap,
+            lineJoin: element.options?.lineJoin,
+          });
         }
       }
     });
@@ -132,38 +138,4 @@ export function useCanvas(props: UseCanvasProps): UseCanvasReturn {
     clear,
     render,
   };
-}
-
-/**
- * Render a freehand stroke from point array
- */
-function renderStroke(
-  ctx: CanvasRenderingContext2D,
-  points: { x: number; y: number }[],
-  options: RenderOptions = {}
-): void {
-  if (points.length === 0) return;
-
-  const {
-    strokeColor = '#000000',
-    strokeWidth = 2,
-    lineCap = 'round',
-    lineJoin = 'round',
-  } = options;
-
-  ctx.save();
-  ctx.strokeStyle = strokeColor;
-  ctx.lineWidth = strokeWidth;
-  ctx.lineCap = lineCap;
-  ctx.lineJoin = lineJoin;
-
-  ctx.beginPath();
-  ctx.moveTo(points[0].x, points[0].y);
-
-  for (let i = 1; i < points.length; i++) {
-    ctx.lineTo(points[i].x, points[i].y);
-  }
-
-  ctx.stroke();
-  ctx.restore();
 }
