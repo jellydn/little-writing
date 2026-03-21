@@ -1,116 +1,341 @@
-# Testing Patterns
+# TESTING.md - Little Writing
 
-**Analysis Date:** 2026-03-21
+## Overview
 
-## Test Framework
+**Project**: Kids Handwriting Tracing App  
+**Framework**: Vitest + React Testing Library + Playwright (E2E)  
+**Last Updated**: 2026-03-21
 
-**Runner:**
+---
 
-- Vitest 1.1.0 (unit, component, integration tests)
-- Config: `vitest.config.ts`
-- Playwright 1.40.1 (E2E tests)
-- Config: `playwright.config.ts`
+## Testing Framework
 
-**Assertion Library:**
+### Core Stack
 
-- Vitest built-in `expect`
-- `@testing-library/jest-dom` for DOM assertions
-- `@testing-library/react` for component testing
-- `@testing-library/user-event` for user interaction simulation
+| Tool                        | Version | Purpose                     |
+| --------------------------- | ------- | --------------------------- |
+| Vitest                      | ^1.1.0  | Test runner                 |
+| jsdom                       | ^23.0.1 | DOM environment             |
+| @testing-library/react      | ^14.1.2 | Component testing utilities |
+| @testing-library/jest-dom   | ^6.1.4  | Custom matchers             |
+| @testing-library/user-event | ^14.5.1 | User interaction simulation |
+| @vitest/coverage-v8         | ^1.6.0  | Code coverage               |
+| Playwright                  | ^1.40.1 | E2E testing                 |
 
-**Run Commands:**
+### Configuration
 
-```bash
-bunx vitest                 # Run all tests (interactive)
-bunx vitest --run           # Run all tests once (CI)
-bunx vitest --watch         # Watch mode
-bunx vitest --coverage      # Coverage report
+**File**: `vitest.config.ts`
 
-bun run test:e2e            # Run E2E tests
-bun run test:e2e:ui         # Run E2E tests with UI
+```typescript
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import { defineConfig } from 'vitest/config';
 
-# Quality gate
-bunx vitest --run && pnpm run lint && pnpm run typecheck
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./tests/setup.ts'],
+    include: [
+      'tests/unit/**/*.{test,spec}.{js,ts,jsx,tsx}',
+      'tests/component/**/*.{test,spec}.{js,ts,jsx,tsx}',
+      'tests/integration/**/*.{test,spec}.{js,ts,jsx,tsx}',
+    ],
+    exclude: ['tests/e2e/**'],
+    css: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: ['node_modules/', 'tests/', 'dist/'],
+    },
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  define: {
+    'process.env.NODE_ENV': '"test"',
+  },
+});
 ```
 
-## Test File Organization
+---
 
-**Location:**
+## Test Setup
 
-- Separate `tests/` directory at project root
-- Not co-located with source files
+**File**: `tests/setup.ts`
 
-**Naming:**
+The setup file configures:
 
-- Unit tests: `tests/unit/{module}.test.ts`
-- Component tests: `tests/component/{Component}.test.tsx`
-- Integration tests: `tests/integration/{flow}.test.tsx`
-- E2E tests: `tests/e2e/{screen}.spec.ts`
+- Testing library jest-dom matchers
+- Cleanup after each test
+- Global mocks for browser APIs
 
-**Structure:**
+```typescript
+import '@testing-library/jest-dom';
+import { cleanup } from '@testing-library/react';
+import { afterEach, vi } from 'vitest';
 
+// Cleanup after each test
+afterEach(() => {
+  cleanup();
+});
+
+// Mock IntersectionObserver
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+})) as unknown as typeof IntersectionObserver;
+
+// Mock requestAnimationFrame
+global.requestAnimationFrame = (callback: FrameRequestCallback) =>
+  setTimeout(callback, 0) as unknown as number;
+
+global.cancelAnimationFrame = (id: number) => {
+  clearTimeout(id);
+};
+
+// Mock PointerEvent for canvas tests
+class MockPointerEvent extends MouseEvent {
+  // ... implementation
+}
+global.PointerEvent = MockPointerEvent as typeof PointerEvent;
 ```
-tests/
-├── setup.ts              # Global test setup
-├── unit/
-│   ├── strokeValidator.test.ts
-│   ├── pathRenderer.test.ts
-│   └── touchHandler.test.ts
-├── component/
-│   ├── CharacterGrid.test.tsx
-│   └── CategorySelector.test.tsx
-├── integration/
-│   ├── tracing-flow.test.tsx
-│   ├── navigation-flow.test.tsx
-│   └── clear-reset-flow.test.tsx
-└── e2e/
-    ├── character-selection.spec.ts
-    ├── category-selection.spec.ts
-    └── tracing-screen.spec.ts
-```
+
+---
 
 ## Test Structure
 
-**Suite Organization:**
+### Directory Layout
+
+```
+tests/
+├── unit/                    # Unit tests for pure functions/utilities
+│   ├── strokeValidator.test.ts
+│   ├── touchHandler.test.ts
+│   └── pathRenderer.test.ts
+├── component/               # Component tests (rendering, props, events)
+│   ├── CategorySelector.test.tsx
+│   └── CharacterGrid.test.tsx
+├── integration/             # Integration tests (user flows)
+│   ├── tracing-flow.test.tsx
+│   ├── navigation-flow.test.tsx
+│   └── clear-reset-flow.test.tsx
+├── e2e/                     # E2E tests (Playwright)
+│   ├── category-selection.spec.ts
+│   ├── character-selection.spec.ts
+│   └── tracing-screen.spec.ts
+└── setup.ts                 # Test setup and global mocks
+```
+
+### Test File Naming
+
+- Unit/Component/Integration: `name.test.ts` or `name.test.tsx`
+- E2E: `name.spec.ts`
+
+---
+
+## Unit Testing
+
+### Pattern
+
+Unit tests focus on pure functions and isolated logic.
+
+**Example** from `strokeValidator.test.ts`:
 
 ```typescript
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+/**
+ * Unit tests for strokeValidator.ts
+ *
+ * Tests distance calculation, accuracy scoring, and stroke validation
+ */
 
-// Group related tests with describe blocks
-describe('ModuleName', () => {
-  // Setup before each test
-  beforeEach(() => {
-    // Reset mocks, clear state
-    mockFn.mockClear();
+import { describe, it, expect } from 'vitest';
+import {
+  pointToSegmentDistance,
+  validateStroke,
+} from '@/lib/canvas/strokeValidator';
+import type { Point, StrokePath } from '@/types';
+
+describe('pointToSegmentDistance', () => {
+  describe('point on segment', () => {
+    it('should return 0 when point is exactly on the segment', () => {
+      const point: Point = { x: 5, y: 5 };
+      const start: Point = { x: 0, y: 5 };
+      const end: Point = { x: 10, y: 5 };
+
+      const distance = pointToSegmentDistance(point, start, end);
+      expect(distance).toBe(0);
+    });
   });
 
-  // Nested describe for related functionality
-  describe('specific behavior', () => {
-    it('should do something specific', () => {
-      // Arrange - set up test data
-      const input = createTestData();
-
-      // Act - perform the action
-      const result = myFunction(input);
-
-      // Assert - verify the result
-      expect(result).toBe(expected);
+  describe('edge cases', () => {
+    it('should handle empty user points', () => {
+      // test implementation
     });
   });
 });
 ```
 
-**Patterns:**
+### Key Practices
 
-- Setup: `beforeEach` for resetting mocks/state
-- Teardown: `afterEach` for cleanup (via `cleanup()` from testing-library)
-- Test isolation: Each test sets up its own data
+1. **Describe blocks** group related tests by feature/scenario
+2. **Nested describe** for sub-scenarios (edge cases, happy path, etc.)
+3. **Explicit types** in test data
+4. **Use `@/` imports** for source files
+5. **Use `type` imports** for type-only imports
+
+---
+
+## Component Testing
+
+### Pattern
+
+Component tests verify rendering, props, and user interactions.
+
+**Example** from `CategorySelector.test.tsx`:
+
+```typescript
+import { fireEvent, render, screen } from '@testing-library/react';
+import React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CategorySelector } from '@/components/navigation/CategorySelector';
+
+describe('CategorySelector', () => {
+  const mockOnSelectCategory = vi.fn();
+
+  beforeEach(() => {
+    mockOnSelectCategory.mockClear();
+  });
+
+  it('should render all category cards', () => {
+    render(<CategorySelector onSelectCategory={mockOnSelectCategory} />);
+
+    expect(
+      screen.getByRole('button', { name: /Select Numbers/i })
+    ).toBeInTheDocument();
+  });
+
+  it('should call onSelectCategory when clicked', () => {
+    render(<CategorySelector onSelectCategory={mockOnSelectCategory} />);
+
+    const numbersCard = screen.getByRole('button', { name: /Select Numbers/i });
+    fireEvent.click(numbersCard);
+
+    expect(mockOnSelectCategory).toHaveBeenCalledTimes(1);
+    expect(mockOnSelectCategory).toHaveBeenCalledWith('number');
+  });
+
+  it('should handle keyboard navigation with Enter key', () => {
+    render(<CategorySelector onSelectCategory={mockOnSelectCategory} />);
+
+    const numbersCard = screen.getByRole('button', { name: /Select Numbers/i });
+    fireEvent.keyDown(numbersCard, { key: 'Enter' });
+
+    expect(mockOnSelectCategory).toHaveBeenCalledWith('number');
+  });
+});
+```
+
+### Key Practices
+
+1. **Mock functions** with `vi.fn()` for callbacks
+2. **Clear mocks** in `beforeEach`
+3. **Use `screen` queries** for element selection
+4. **Test accessibility** (roles, labels)
+5. **Test user interactions** (click, keyboard)
+
+---
+
+## Integration Testing
+
+### Pattern
+
+Integration tests verify user flows across multiple components.
+
+**Example** from `tracing-flow.test.tsx`:
+
+```typescript
+/**
+ * Integration Tests: Tracing Flow
+ *
+ * Tests the complete user flow from selecting a category to tracing a character
+ */
+
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { useAppStore } from '@/state/sessionStore';
+
+// Mock dependencies
+vi.mock('@/lib/feedback/soundPlayer', () => ({
+  playSuccessSound: vi.fn(),
+}));
+
+vi.mock('@/hooks/useCanvas', () => ({
+  useCanvas: vi.fn(() => ({ /* mock implementation */ })),
+}));
+
+describe('Tracing Flow Integration', () => {
+  beforeEach(() => {
+    act(() => {
+      useAppStore.setState({
+        currentScreen: 'category-selection',
+        currentCategory: 'uppercase',
+        currentCharacter: null,
+        session: null,
+      });
+    });
+  });
+
+  it('should complete full flow: category -> character -> trace -> success', async () => {
+    render(<AppLayout />);
+
+    // Step 1: Select Numbers category
+    const numbersButton = screen.getByText('Numbers');
+    fireEvent.click(numbersButton);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Select Number/i)).toBeInTheDocument();
+    });
+
+    // Step 2: Select character
+    const characterButton = screen.getByText('0');
+    fireEvent.click(characterButton);
+
+    // Step 3: Complete stroke
+    act(() => {
+      const store = useAppStore.getState();
+      store.startStroke({ x: 50, y: 10 });
+      store.addStrokePoint({ x: 50, y: 50 });
+      store.endStroke();
+    });
+
+    // Step 4: Verify success
+    await waitFor(() => {
+      expect(useAppStore.getState().session?.isComplete).toBe(true);
+    });
+  });
+});
+```
+
+### Key Practices
+
+1. **Wrap state changes in `act()`**
+2. **Use `waitFor`** for async assertions
+3. **Mock external dependencies** (audio, canvas)
+4. **Reset store state** in `beforeEach`
+5. **Test complete user journeys**
+
+---
 
 ## Mocking
 
-**Framework:** Vitest's `vi` (via `import { vi } from 'vitest'`)
-
-**Patterns:**
+### Module Mocking
 
 ```typescript
 // Mock entire module
@@ -118,156 +343,235 @@ vi.mock('@/lib/feedback/soundPlayer', () => ({
   playSuccessSound: vi.fn(),
 }));
 
-// Mock hook with return value
+// Mock with implementation
 vi.mock('@/hooks/useCanvas', () => ({
   useCanvas: vi.fn(() => ({
     canvasRef: { current: document.createElement('canvas') },
-    ctx: mockContext,
+    ctx: {
+      /* mock context */
+    },
     clear: vi.fn(),
   })),
 }));
-
-// Create mock function
-const mockFn = vi.fn();
-mockFn.mockClear();
-mockFn.mockResolvedValue(value);
-mockFn.mockRejectedValue(error);
 ```
 
-**What to Mock:**
-
-- External services (sound player, analytics)
-- Canvas context (DOM-dependent operations)
-- Network requests (if any)
-- Time-dependent functionality (use `vi.useFakeTimers()`)
-
-**What NOT to Mock:**
-
-- Internal utility functions (test them directly)
-- Simple pure functions
-- Type definitions
-
-## Fixtures and Factories
-
-**Test Data:**
+### Function Mocking
 
 ```typescript
-// Helper function to create test data
-const createGuidePath = (points: Point[]): StrokePath => ({
-  id: 1,
-  path: 'M 0 0 L 100 0',
-  startPoint: points[0],
-  endPoint: points[points.length - 1],
-  guidePoints: points,
-});
-
-// Inline fixtures for simple tests
-const mockCharacter: CharacterTemplate = {
-  character: 'A',
-  category: 'uppercase' as Category,
-  displayName: 'Letter A',
-  bounds: { width: 100, height: 100, viewBox: '0 0 100 100' },
-  strokes: [],
-  totalStrokes: 3,
+const mockCallbacks = {
+  onStrokeStart: vi.fn(),
+  onStrokeMove: vi.fn(),
+  onStrokeEnd: vi.fn(),
 };
+
+// Verify calls
+expect(mockCallbacks.onStrokeStart).toHaveBeenCalledWith({ x: 100, y: 200 });
+expect(mockCallbacks.onStrokeStart).toHaveBeenCalledTimes(1);
 ```
 
-**Location:**
+### Clearing Mocks
 
-- Defined inline in test files
-- Helper functions at top of test file
-- Complex fixtures can be in `tests/fixtures/` (not currently used)
+```typescript
+beforeEach(() => {
+  mockOnSelectCategory.mockClear();
+  // or vi.clearAllMocks()
+});
+```
+
+---
 
 ## Coverage
 
-**Requirements:** None enforced (no coverage threshold)
+### Configuration
 
-**View Coverage:**
+```typescript
+coverage: {
+  provider: 'v8',
+  reporter: ['text', 'json', 'html'],
+  exclude: ['node_modules/', 'tests/', 'dist/'],
+}
+```
+
+### Running Coverage
 
 ```bash
 bunx vitest --coverage
 ```
 
-**Coverage Output:**
+### Reports
 
-- Text report in terminal
-- JSON and HTML reports generated
-- Provider: v8
-- Excludes: `node_modules/`, `tests/`, `dist/`
+- **text**: Console output
+- **json**: `coverage/coverage-final.json`
+- **html**: `coverage/index.html`
 
-## Test Types
+---
 
-**Unit Tests:**
+## E2E Testing (Playwright)
 
-- Scope: Individual functions and utilities
-- Location: `tests/unit/`
-- Example: `strokeValidator.test.ts` - tests distance calculations
-- Approach: Pure function testing with edge cases
+### Configuration
 
-**Integration Tests:**
+Tests located in `tests/e2e/`. Run separately from unit/component/integration tests.
 
-- Scope: Multi-component flows and store interactions
-- Location: `tests/integration/`
-- Example: `tracing-flow.test.tsx` - tests category→character→trace flow
-- Uses `act()` for state updates
-- Mocks external dependencies (canvas, audio)
+### Pattern
 
-**E2E Tests:**
-
-- Framework: Playwright
-- Location: `tests/e2e/`
-- Browser targets: Chromium (desktop + mobile Chrome)
-- Uses real browser rendering
-- Server auto-started with `bun run dev`
-
-## Common Patterns
-
-**Async Testing:**
+**Example** from `category-selection.spec.ts`:
 
 ```typescript
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { expect, test } from '@playwright/test';
 
-// With waitFor for async state updates
-await waitFor(() => {
-  expect(screen.getByText('Expected')).toBeInTheDocument();
-});
+test.describe('Category Selection', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+  });
 
-// With act for synchronous state updates
-act(() => {
-  store.startStroke({ x: 50, y: 20 });
-  store.endStroke();
-});
-```
+  test('should display category selection screen', async ({ page }) => {
+    await expect(page.locator('h1')).toContainText('Select a Category');
+    await expect(page.getByRole('button', { name: 'Numbers' })).toBeVisible();
+  });
 
-**Error Testing:**
-
-```typescript
-// For sync functions
-expect(() => myFunction(invalidInput)).toThrow();
-
-// For async functions
-await expect(myAsyncFunction()).rejects.toThrow();
-
-// For testing error boundaries
-```
-
-**Store Testing (Zustand):**
-
-```typescript
-import { useAppStore } from '@/state/sessionStore';
-
-// Reset store state
-act(() => {
-  useAppStore.setState({
-    currentScreen: 'category-selection',
-    session: null,
+  test('should navigate to character selection when clicked', async ({
+    page,
+  }) => {
+    await page.getByRole('button', { name: 'Numbers' }).click();
+    await expect(page.locator('h1')).toContainText('Select Number');
   });
 });
+```
 
-// Access store directly in tests
-const store = useAppStore.getState();
+### Running E2E Tests
+
+```bash
+# Install Playwright browsers
+bunx playwright install --with-deps chromium
+
+# Run E2E tests
+bun run test:e2e
+
+# Run with UI
+bun run test:e2e:ui
 ```
 
 ---
 
-_Testing analysis: 2026-03-21_
+## Running Tests
+
+### Commands
+
+```bash
+# Single test file (most common)
+bunx vitest src/path/file.test.ts
+
+# All unit/component/integration tests
+bunx vitest --run
+
+# Watch mode
+bunx vitest --watch src/path/file.test.ts
+
+# Coverage
+bunx vitest --coverage
+
+# E2E tests
+bun run test:e2e
+bun run test:e2e:ui
+```
+
+### Justfile Recipes
+
+```bash
+just test-unit     # Run tests once
+just test-watch    # Watch mode
+just test-e2e      # Run e2e tests
+just quality       # All quality checks
+```
+
+---
+
+## Testing Best Practices
+
+### 1. Test Behavior, Not Implementation
+
+```typescript
+// ✅ Good - test behavior
+it('should display success message when tracing is complete', () => {
+  // test user-facing behavior
+});
+
+// ❌ Bad - test implementation details
+it('should call setState with isComplete: true', () => {
+  // testing internal state
+});
+```
+
+### 2. Use Explicit Test Data
+
+```typescript
+// ✅ Good
+const userPoints: Point[] = [
+  { x: 0, y: 0 },
+  { x: 25, y: 0 },
+  { x: 50, y: 0 },
+];
+
+// ❌ Bad
+const userPoints = generateRandomPoints();
+```
+
+### 3. Clear Descriptions
+
+```typescript
+// ✅ Good
+describe('pointToSegmentDistance', () => {
+  describe('point on segment', () => {
+    it('should return 0 when point is exactly on the segment', () => {
+      // test
+    });
+  });
+});
+```
+
+### 4. One Assertion Per Concept
+
+```typescript
+// ✅ Good
+expect(result.isCorrect).toBe(true);
+expect(result.accuracy).toBe(1);
+expect(result.feedbackColor).toBe('#4CAF50');
+```
+
+### 5. Mock at Boundaries
+
+Mock external dependencies (APIs, audio, canvas) but not internal functions.
+
+```typescript
+// ✅ Good - mock external module
+vi.mock('@/lib/feedback/soundPlayer', () => ({
+  playSuccessSound: vi.fn(),
+}));
+
+// ❌ Bad - mock internal function
+vi.mock('@/lib/canvas/strokeValidator', () => ({
+  validateStroke: vi.fn(),
+}));
+```
+
+---
+
+## Test Types Summary
+
+| Type        | Location             | Focus                      | Speed  |
+| ----------- | -------------------- | -------------------------- | ------ |
+| Unit        | `tests/unit/`        | Pure functions, logic      | Fast   |
+| Component   | `tests/component/`   | Component rendering, props | Fast   |
+| Integration | `tests/integration/` | User flows, interactions   | Medium |
+| E2E         | `tests/e2e/`         | Full browser testing       | Slow   |
+
+---
+
+## Quality Gates
+
+Before committing, ensure:
+
+- [ ] All tests pass (`bunx vitest --run`)
+- [ ] Coverage thresholds met
+- [ ] No test-only code in production
+- [ ] Tests are deterministic (no random failures)
