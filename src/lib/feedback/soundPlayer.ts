@@ -27,6 +27,7 @@ function getAudioContext(): AudioContext | null {
       // @ts-expect-error - webkitAudioContext is Safari-specific
       window.webkitAudioContext
     )();
+    window.addEventListener('beforeunload', cleanupSounds);
     return audioContext;
   } catch {
     return null;
