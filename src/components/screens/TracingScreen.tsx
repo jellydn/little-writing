@@ -112,7 +112,12 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
 
         <SuccessAnimation
           isVisible={session.isComplete}
-          onComplete={() => {}}
+          onComplete={() => {
+            // Auto-advance to next character after success animation
+            if (hasNext) {
+              setTimeout(onNext, 500);
+            }
+          }}
         />
       </main>
 
