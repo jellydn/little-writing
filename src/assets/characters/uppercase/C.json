@@ -1,0 +1,28 @@
+{
+  "character": "C",
+  "category": "uppercase",
+  "displayName": "C",
+  "bounds": {
+    "width": 100,
+    "height": 100,
+    "viewBox": "0 0 100 100"
+  },
+  "strokes": [
+    {
+      "id": 1,
+      "path": "M 80 30 Q 50 10 25 30 Q 10 55 25 75 Q 50 90 80 70",
+      "startPoint": { "x": 80, "y": 30 },
+      "endPoint": { "x": 80, "y": 70 },
+      "guidePoints": [
+        { "x": 80, "y": 30 },
+        { "x": 55, "y": 15 },
+        { "x": 30, "y": 25 },
+        { "x": 18, "y": 45 },
+        { "x": 18, "y": 65 },
+        { "x": 35, "y": 80 },
+        { "x": 80, "y": 70 }
+      ]
+    }
+  ],
+  "totalStrokes": 1
+}

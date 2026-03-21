@@ -1,0 +1,36 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Subtle gradient for depth -->
+    <radialGradient id="coralGradient" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FF8A8A" />
+      <stop offset="100%" stop-color="#FF6B6B" />
+    </radialGradient>
+    <radialGradient id="tealGradient" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#6EDDD6" />
+      <stop offset="100%" stop-color="#4ECDC4" />
+    </radialGradient>
+    <radialGradient id="yellowGradient" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFF09D" />
+      <stop offset="100%" stop-color="#FFE66D" />
+    </radialGradient>
+  </defs>
+
+  <!-- Background circle (light coral) -->
+  <circle cx="250" cy="250" r="240" fill="#FFF0F0" opacity="0.5" />
+
+  <!-- Main overlapping circles - playful composition -->
+  <!-- Top coral circle -->
+  <circle cx="250" cy="180" r="110" fill="url(#coralGradient)" />
+
+  <!-- Bottom left teal circle -->
+  <circle cx="180" cy="290" r="95" fill="url(#tealGradient)" />
+
+  <!-- Bottom right yellow circle -->
+  <circle cx="320" cy="290" r="95" fill="url(#yellowGradient)" />
+
+  <!-- Small accent circles for visual interest -->
+  <circle cx="250" cy="250" r="45" fill="#FFFFFF" opacity="0.9" />
+
+  <!-- Playful pencil tip hint (subtle triangle in center) -->
+  <path d="M250 235 L265 265 L235 265 Z" fill="#FF6B6B" opacity="0.8" />
+</svg>

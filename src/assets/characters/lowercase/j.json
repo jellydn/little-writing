@@ -1,0 +1,40 @@
+{
+  "character": "j",
+  "category": "lowercase",
+  "displayName": "j",
+  "bounds": {
+    "width": 100,
+    "height": 100,
+    "viewBox": "0 0 100 100"
+  },
+  "strokes": [
+    {
+      "id": 1,
+      "path": "M 55 35 L 55 38",
+      "startPoint": { "x": 55, "y": 35 },
+      "endPoint": { "x": 55, "y": 38 },
+      "guidePoints": [
+        { "x": 55, "y": 35 },
+        { "x": 55, "y": 36 },
+        { "x": 55, "y": 37 },
+        { "x": 55, "y": 38 }
+      ]
+    },
+    {
+      "id": 2,
+      "path": "M 55 45 L 55 85 Q 50 95 35 90",
+      "startPoint": { "x": 55, "y": 45 },
+      "endPoint": { "x": 35, "y": 90 },
+      "guidePoints": [
+        { "x": 55, "y": 45 },
+        { "x": 55, "y": 55 },
+        { "x": 55, "y": 65 },
+        { "x": 55, "y": 75 },
+        { "x": 55, "y": 85 },
+        { "x": 48, "y": 92 },
+        { "x": 35, "y": 90 }
+      ]
+    }
+  ],
+  "totalStrokes": 2
+}
