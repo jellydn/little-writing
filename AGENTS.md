@@ -8,50 +8,44 @@
 
 ## Commands
 
-### Install & Dev
+### Development
 
 ```bash
 bun install                 # Install dependencies
 bun run dev                 # Start dev server http://localhost:5173
-```
-
-### Build & Test
-
-```bash
 bun run build               # Production build
 bun run preview             # Preview production build
-
-# Single test file (most common usage)
-bunx vitest src/path/test.ts
-
-# Unit tests (non-interactive)
-bunx vitest --run
-
-# Interactive test mode
-bunx vitest
-
-# Watch mode for specific file
-bunx vitest --watch src/path/test.ts
-
-# With coverage report
-bunx vitest --coverage
 ```
 
-### E2E Tests
+### Testing
 
 ```bash
-bunx playwright install --with-deps chromium  # Install browser (first time)
+# Single test file (most common)
+bunx vitest src/path/file.test.ts
+
+# All unit/component/integration tests
+bunx vitest --run
+
+# Interactive/watch mode
+bunx vitest
+bunx vitest --watch src/path/file.test.ts
+
+# Coverage
+bunx vitest --coverage
+
+# E2E tests
+bunx playwright install --with-deps chromium  # First time setup
 bun run test:e2e           # Run e2e tests
-bun run test:e2e:ui        # Run e2e tests with UI
+bun run test:e2e:ui        # Run with UI
 ```
 
 ### Code Quality
 
 ```bash
-bun run lint                # oxlint for linting
-bun run format              # oxfmt for formatting
-bun run format:check        # Check formatting without writing
-bun run typecheck           # tsc --noEmit
+bun run lint               # oxlint (see .oxlintrc.json)
+bun run format             # oxfmt (see .oxfmtrc.json)
+bun run format:check       # Check formatting without writing
+bun run typecheck          # tsc --noEmit
 ```
 
 ### Quality Gate (before commit)
@@ -63,19 +57,18 @@ bunx vitest --run && bun run lint && bun run typecheck
 ### Justfile Recipes
 
 ```bash
-just dev                    # Start dev server
-just test                   # Run unit tests
-just test-unit             # Run tests once (non-interactive)
-just test-watch            # Watch mode
-just test-e2e              # Run e2e tests
-just quality               # Run all quality checks
+just dev                   # Start dev server
+just test-unit            # Run tests once
+just test-watch           # Watch mode
+just test-e2e             # Run e2e tests
+just quality              # All quality checks
 ```
 
 ### Capacitor iOS
 
 ```bash
-npx cap sync                # Sync web build to iOS
-npx cap open ios             # Open in Xcode
+npx cap sync               # Sync web build to iOS
+npx cap open ios           # Open in Xcode
 ```
 
 ---
@@ -85,7 +78,7 @@ npx cap open ios             # Open in Xcode
 ### TypeScript
 
 - Strict mode enabled, no `any` (use `unknown` + narrow)
-- Always explicit return types and parameter types
+- Explicit return types and parameter types
 - Interfaces for object shapes, types for unions
 - Use `as const` for immutable constants
 - Named exports only (no default exports)
@@ -93,17 +86,17 @@ npx cap open ios             # Open in Xcode
 ### React
 
 - Functional components only, named exports
-- Define props interface above component with `export interface`
+- Define props interface above component: `export interface Props`
 - One component per file, filename = component name
 - Use `React.FC<Props>` type for components
 
 ### JSDoc Comments
 
-- Add JSDoc comments for public functions and complex logic
-- Include `@param`, `@returns` tags for functions
-- Describe algorithm or reference specs where applicable
+- Add JSDoc for public functions and complex logic
+- Include `@param`, `@returns` tags
+- Describe algorithms or reference specs
 
-## Naming
+### Naming
 
 | Element     | Convention       | Example                   |
 | ----------- | ---------------- | ------------------------- |
@@ -115,7 +108,7 @@ npx cap open ios             # Open in Xcode
 | CSS Modules | camelCase.module | `Button.module.css`       |
 | Test files  | name.test.ts     | `strokeValidator.test.ts` |
 
-## Imports
+### Imports
 
 ```typescript
 import React, { useState } from "react";
@@ -127,10 +120,10 @@ import styles from "./MyComponent.module.css";
 
 - Use `@/` alias for `src/`
 - No default exports
-- Group imports: React > external libs > internal (@/) > relative
+- Group imports: React > external > internal (@/) > relative
 - Type imports use `import type`
 
-## Formatting (oxfmt)
+### Formatting (oxfmt - see .oxfmtrc.json)
 
 - Semicolons: required
 - Single quotes
@@ -140,7 +133,15 @@ import styles from "./MyComponent.module.css";
 - Print width: 80
 - End of line: lf
 
-## Error Handling
+### Linting (oxlint - see .oxlintrc.json)
+
+- Plugins: react, typescript
+- React version: 18.2.0
+- No explicit `any` (warn)
+- No console except warn/error (warn)
+- No unused vars (error, allow `_` prefix)
+
+### Error Handling
 
 - Guard clauses for invalid states
 - Explicit error states in async interfaces
@@ -154,34 +155,35 @@ import styles from "./MyComponent.module.css";
 ```
 src/
 ├── components/
-│   ├── canvas/          # Canvas-related components
 │   ├── feedback/        # Feedback components
-│   ├── layout/         # Layout components
+│   ├── layout/          # Layout components
 │   ├── navigation/      # Navigation components
 │   ├── screens/         # Screen components
 │   ├── tracing/         # Tracing components
-│   └── ui/             # Reusable UI components
+│   └── ui/              # Reusable UI components
 ├── hooks/               # Custom React hooks
 ├── lib/
 │   ├── canvas/          # Canvas utilities
 │   ├── feedback/        # Feedback utilities
-│   └── templates/      # Character templates
+│   └── templates/       # Character templates
 ├── state/               # Zustand store
 ├── styles/              # theme.ts, animations.ts
 ├── types/               # Type definitions
 └── assets/              # Static assets
 
 tests/
-├── unit/                 # Unit tests
-├── e2e/                  # E2E tests (Playwright)
+├── component/           # Component tests
+├── e2e/                 # E2E tests (Playwright)
+├── integration/         # Integration tests
+├── unit/                # Unit tests
 └── setup.ts             # Test setup
 ```
 
 ---
 
-## Testing
+## Testing Patterns
 
-### Unit Tests (Vitest)
+### Unit/Integration Tests (Vitest)
 
 ```typescript
 import { describe, it, expect } from "vitest";
@@ -244,20 +246,25 @@ test("user can trace a character", async ({ page }) => {
 
 ## Key Files
 
-| Purpose    | File                                |
-| ---------- | ----------------------------------- |
-| App        | `src/App.tsx`                       |
-| State      | `src/state/sessionStore.ts`         |
-| Validation | `src/lib/canvas/strokeValidator.ts` |
-| Theme      | `src/styles/theme.ts`               |
-| Types      | `src/types/index.ts`                |
-| Justfile   | `justfile`                          |
+| Purpose       | File                                |
+| ------------- | ----------------------------------- |
+| App           | `src/App.tsx`                       |
+| State         | `src/state/sessionStore.ts`         |
+| Validation    | `src/lib/canvas/strokeValidator.ts` |
+| Theme         | `src/styles/theme.ts`               |
+| Types         | `src/types/index.ts`                |
+| Test Config   | `vitest.config.ts`                  |
+| Lint Config   | `.oxlintrc.json`                    |
+| Format Config | `.oxfmtrc.json`                     |
+| Justfile      | `justfile`                          |
 
 ---
 
 ## Vitest Configuration
 
-- Uses `@testing-library/jest-dom` for DOM assertions
-- Uses `jsdom` environment
-- Test files: `*.test.ts`, `*.test.tsx`
-- Coverage via `@vitest/coverage-v8`
+- Environment: `jsdom`
+- Globals: enabled
+- Setup: `tests/setup.ts`
+- Test patterns: `tests/{unit,component,integration}/**/*.test.ts`
+- Excludes: `tests/e2e/**`
+- Coverage: v8 provider

@@ -1,6 +1,13 @@
-# Little Writing
+<h1 align="center">Welcome to Little Writing 👋</h1>
+<p>
+  <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-blue.svg?cacheSeconds=2592000" />
+  <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-blue.svg" />
+  <a href="#" target="_blank">
+    <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
+  </a>
+</p>
 
-A handwriting tracing app for kids built with React, react-konva, and Capacitor.
+> A handwriting tracing app for kids built with React, react-konva, and Capacitor.
 
 ## Tech Stack
 
@@ -14,7 +21,7 @@ A handwriting tracing app for kids built with React, react-konva, and Capacitor.
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js LTS
 - Bun (recommended) or npm
 
 ### Installation
@@ -79,3 +86,27 @@ src/
 3. **Touch-First Interaction** - 60fps performance, finger/stylus support
 4. **Immediate Feedback** - Real-time validation, encouraging feedback
 5. **Simplicity** - Focused on core tracing functionality
+
+## Resources
+
+- [React Konva Documentation](https://konvajs.org/docs/react/)
+- [Capacitor Documentation](https://capacitorjs.com/docs)
+- [Vitest Documentation](https://vitest.dev/)
+- [Zustand Documentation](https://github.com/pmndrs/zustand)
+
+
+## Author
+
+👤 **Dung Huynh**
+
+- Website: [https://productsway.com](https://productsway.com)
+- Twitter: [@jellydn](https://twitter.com/jellydn)
+- GitHub: [@jellydn](https://github.com/jellydn)
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
+
+[![kofi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/dunghd)
+[![paypal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/dunghd)
+[![buymeacoffee](https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/dunghd)
