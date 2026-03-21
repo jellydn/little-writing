@@ -57,14 +57,17 @@ format-check:
     bun run format:check
 
 # Quality gate - runs all checks
-quality: test lint typecheck
+quality: test-unit lint typecheck format-check
 
 # Capacitor iOS
+ios-build:
+    CAPACITOR=true bun run build
+
 ios-sync:
-    npx cap sync
+    bunx cap sync ios
 
 ios-open:
-    npx cap open ios
+    bunx cap open ios
 
 ios-copy:
-    npx cap copy
+    bunx cap copy ios
