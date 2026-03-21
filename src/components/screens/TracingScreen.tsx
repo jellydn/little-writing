@@ -8,6 +8,7 @@
  */
 
 import type React from "react";
+import { useCanvasSize } from "@/hooks/useCanvasSize";
 import type { CharacterTemplate, DrawingSession, Point } from "../../types";
 import { NavButtons } from "../navigation/NavButtons";
 import { Canvas } from "../tracing/Canvas";
@@ -39,6 +40,7 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
 	onBack,
 	onClear,
 }) => {
+	const canvasSize = useCanvasSize();
 	const currentIndex = categoryCharacters.findIndex(
 		(c) => c.character === template.character,
 	);
@@ -72,8 +74,8 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
 					key={`${template.character}-${session.startedAt}`}
 					template={template}
 					session={session}
-					width={500}
-					height={500}
+					width={canvasSize}
+					height={canvasSize}
 					onStrokeStart={onStrokeStart}
 					onStrokeMove={onStrokeMove}
 					onStrokeEnd={onStrokeEnd}
