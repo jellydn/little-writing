@@ -43,9 +43,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
     expect(screen.getByText('Oops!')).toBeInTheDocument();
-    expect(
-      screen.getByText(/Something went wrong/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument();
   });
 
   it('should render "Try Again" button in error state', () => {

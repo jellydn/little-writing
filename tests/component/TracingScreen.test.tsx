@@ -182,12 +182,7 @@ describe('TracingScreen', () => {
 
   it('should disable next button when at last character', () => {
     const lastTemplate: CharacterTemplate = { ...mockTemplate, character: 'C' };
-    render(
-      <TracingScreen
-        {...defaultProps}
-        template={lastTemplate}
-      />
-    );
+    render(<TracingScreen {...defaultProps} template={lastTemplate} />);
     expect(
       screen.getByRole('button', { name: /Next character/i })
     ).toBeDisabled();
@@ -205,12 +200,7 @@ describe('TracingScreen', () => {
       ...mockTemplate,
       character: 'B',
     };
-    render(
-      <TracingScreen
-        {...defaultProps}
-        template={middleTemplate}
-      />
-    );
+    render(<TracingScreen {...defaultProps} template={middleTemplate} />);
     expect(
       screen.getByRole('button', { name: /Previous character/i })
     ).not.toBeDisabled();
