@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/little-writing/',
+  base: process.env.CAPACITOR ? '/' : '/little-writing/',
   root: './',
   publicDir: './public',
   build: {
@@ -18,9 +18,6 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-  },
-  define: {
-    'import.meta.env': JSON.stringify(process.env),
   },
   css: {
     modules: {
