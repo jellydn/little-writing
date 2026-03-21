@@ -84,7 +84,7 @@ function calculateScale(
 	const scaleX = availableWidth / template.bounds.width;
 	const scaleY = availableHeight / template.bounds.height;
 
-	return Math.min(scaleX, scaleY, 1); // Don't upscale, only downscale
+	return Math.min(scaleX, scaleY);
 }
 
 /**
