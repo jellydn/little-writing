@@ -8,12 +8,13 @@
  */
 
 import type React from 'react';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavButtons } from '@/components/navigation/NavButtons';
 import { Canvas } from '@/components/tracing/Canvas';
+import { StrokeFeedback } from '@/components/tracing/StrokeFeedback';
 import { SuccessAnimation } from '@/components/tracing/SuccessAnimation';
 import { useCanvasSize } from '@/hooks/useCanvasSize';
-import type { CharacterTemplate, DrawingSession, Point } from '@/types';
+import type { CharacterTemplate, DrawingSession, Point, Stroke } from '@/types';
 import './TracingScreen.css';
 
 interface TracingScreenProps {
@@ -48,6 +49,38 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
   const hasNext = currentIndex < categoryCharacters.length - 1;
   const hasPrevious = currentIndex > 0;
 
+  // Stroke feedback state
+  const [feedbackVisible, setFeedbackVisible] = useState(false);
+  const [feedbackStroke, setFeedbackStroke] = useState<Stroke | null>(null);
+  const lastStrokeCountRef = useRef(0);
+
+  // Show stroke feedback when a new stroke is completed
+  useEffect(() => {
+    const currentCount = session.strokes.length;
+    const prevCount = lastStrokeCountRef.current;
+
+    if (currentCount > prevCount) {
+      const lastStroke = session.strokes[currentCount - 1];
+      if (lastStroke.isComplete && lastStroke.isValid !== null) {
+        setFeedbackStroke(lastStroke);
+        setFeedbackVisible(true);
+      }
+    } else if (currentCount < prevCount) {
+      // Strokes cleared — hide any visible feedback
+      setFeedbackVisible(false);
+      setFeedbackStroke(null);
+    }
+
+    lastStrokeCountRef.current = currentCount;
+  }, [session.strokes]);
+
+  // Reset feedback tracking when a new session starts
+  useEffect(() => {
+    lastStrokeCountRef.current = 0;
+    setFeedbackVisible(false);
+    setFeedbackStroke(null);
+  }, [session.startedAt]);
+
   // Ref to store timeout ID for cleanup
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -66,6 +99,11 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
       timeoutRef.current = setTimeout(onNext, 500);
     }
   }, [hasNext, onNext]);
+
+  // Memoized callback for stroke feedback dismissal
+  const handleFeedbackComplete = useCallback(() => {
+    setFeedbackVisible(false);
+  }, []);
 
   return (
     <div className="tracing-screen">
@@ -90,16 +128,23 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
       </header>
 
       <main className="tracing-canvas-container">
-        <Canvas
-          key={`${template.character}-${session.startedAt}`}
-          template={template}
-          session={session}
-          width={canvasSize}
-          height={canvasSize}
-          onStrokeStart={onStrokeStart}
-          onStrokeMove={onStrokeMove}
-          onStrokeEnd={onStrokeEnd}
-        />
+        <div className="canvas-wrapper">
+          <Canvas
+            key={`${template.character}-${session.startedAt}`}
+            template={template}
+            session={session}
+            width={canvasSize}
+            height={canvasSize}
+            onStrokeStart={onStrokeStart}
+            onStrokeMove={onStrokeMove}
+            onStrokeEnd={onStrokeEnd}
+          />
+          <StrokeFeedback
+            stroke={feedbackStroke}
+            isVisible={feedbackVisible}
+            onComplete={handleFeedbackComplete}
+          />
+        </div>
 
         <div
           className="progress-indicator"

@@ -83,6 +83,9 @@ export const StrokeFeedback: React.FC<StrokeFeedbackProps> = ({
 
   return (
     <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
       className={`stroke-feedback ${feedbackClass} ${showShake ? 'shake' : ''}`}
       style={{
         position: 'absolute',
@@ -101,6 +104,13 @@ export const StrokeFeedback: React.FC<StrokeFeedbackProps> = ({
         ...animationStyle,
       }}
     >
+      {/* Screen reader announcement — visually-hidden is defined in src/styles/globals.css */}
+      <span className="visually-hidden">
+        {isCorrect
+          ? 'Correct! Stroke complete.'
+          : 'Try again. Stroke was off track.'}
+      </span>
+
       {/* Feedback icon */}
       <div
         style={{
