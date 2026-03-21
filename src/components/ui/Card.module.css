@@ -58,7 +58,7 @@
 }
 
 /* Selected state - for category/character selection */
-.card.selected {
+.selected {
   border: 4px solid #4caf50;
   box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
 }

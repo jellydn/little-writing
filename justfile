@@ -51,10 +51,10 @@ typecheck:
     bun run typecheck
 
 format:
-    pnpm run format
+    bun run format
 
 format-check:
-    pnpm run format:check
+    bun run format:check
 
 # Quality gate - runs all checks
 quality: test lint typecheck
