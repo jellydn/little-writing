@@ -7,6 +7,10 @@
   </a>
 </p>
 
+<p align="center">
+  <img src="./public/logo.png" alt="Little Writing Logo" width="200" height="200">
+</p>
+
 > A handwriting tracing app for kids built with React, react-konva, and Capacitor.
 
 ## Tech Stack
@@ -86,6 +90,64 @@ src/
 3. **Touch-First Interaction** - 60fps performance, finger/stylus support
 4. **Immediate Feedback** - Real-time validation, encouraging feedback
 5. **Simplicity** - Focused on core tracing functionality
+
+## Troubleshooting
+
+### iOS: `Podfile` not found during `cap sync`
+
+```
+Error: ENOENT: no such file or directory, open '.../ios/App/Podfile'
+```
+
+The iOS platform was only partially initialized. Reinitialize it:
+
+```bash
+rm -rf ios
+npx cap add ios
+```
+
+Then sync again:
+
+```bash
+npx cap sync
+```
+
+### iOS: CocoaPods not installed
+
+```
+Error: pod: command not found
+```
+
+Install CocoaPods:
+
+```bash
+sudo gem install cocoapods
+# or with Homebrew
+brew install cocoapods
+```
+
+### Build fails with missing `dist/` directory
+
+Run the web build before syncing to iOS:
+
+```bash
+bun run build
+npx cap sync
+```
+
+### Dev server not starting on port 5173
+
+Check if another process is using the port:
+
+```bash
+lsof -i :5173
+```
+
+Kill the process or use a different port via `--port`:
+
+```bash
+bun run dev -- --port 5174
+```
 
 ## Resources
 
