@@ -52,31 +52,46 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
   // Stroke feedback state
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [feedbackStroke, setFeedbackStroke] = useState<Stroke | null>(null);
-  const lastStrokeCountRef = useRef(0);
 
-  // Show stroke feedback when a new stroke is completed
+  // Tracks the last stroke completion/validation state we've already shown feedback for.
+  const lastValidatedStrokeKeyRef = useRef<string | null>(null);
+
+  // Show stroke feedback when a stroke becomes completed and validated
   useEffect(() => {
     const currentCount = session.strokes.length;
-    const prevCount = lastStrokeCountRef.current;
 
-    if (currentCount > prevCount) {
-      const lastStroke = session.strokes[currentCount - 1];
-      if (lastStroke.isComplete && lastStroke.isValid !== null) {
-        setFeedbackStroke(lastStroke);
-        setFeedbackVisible(true);
-      }
-    } else if (currentCount < prevCount) {
+    if (currentCount === 0) {
       // Strokes cleared — hide any visible feedback
       setFeedbackVisible(false);
       setFeedbackStroke(null);
+      lastValidatedStrokeKeyRef.current = null;
+      return;
     }
 
-    lastStrokeCountRef.current = currentCount;
+    const lastIndex = currentCount - 1;
+    const lastStroke = session.strokes[lastIndex];
+
+    // Build a simple key so we only show feedback once per completed+validated state
+    const validationKey = `${lastIndex}:${String(lastStroke.isComplete)}:${String(
+      lastStroke.isValid
+    )}`;
+
+    const prevValidationKey = lastValidatedStrokeKeyRef.current;
+
+    if (
+      lastStroke.isComplete &&
+      lastStroke.isValid !== null &&
+      validationKey !== prevValidationKey
+    ) {
+      setFeedbackStroke(lastStroke);
+      setFeedbackVisible(true);
+      lastValidatedStrokeKeyRef.current = validationKey;
+    }
   }, [session.strokes]);
 
   // Reset feedback tracking when a new session starts
   useEffect(() => {
-    lastStrokeCountRef.current = 0;
+    lastValidatedStrokeKeyRef.current = null;
     setFeedbackVisible(false);
     setFeedbackStroke(null);
   }, [session.startedAt]);
