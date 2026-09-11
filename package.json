@@ -16,7 +16,7 @@
     "format:check": "oxfmt --check"
   },
   "dependencies": {
-    "konva": "^9.2.0",
+    "konva": "^10.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-konva": "^19.0.0",
