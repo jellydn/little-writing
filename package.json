@@ -23,9 +23,9 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.0.0",
-    "@capacitor/core": "^6.0.0",
-    "@capacitor/ios": "^6.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
     "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.0.0",
