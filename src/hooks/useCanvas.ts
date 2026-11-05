@@ -28,7 +28,7 @@ export type RenderableElement =
  * Hook return value matching the UI contract
  */
 export interface UseCanvasReturn {
-  canvasRef: React.RefObject<HTMLCanvasElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
   ctx: CanvasRenderingContext2D | null;
   width: number;
   height: number;

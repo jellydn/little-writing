@@ -14,10 +14,7 @@ import {
 describe('createPointerHandlers', () => {
   let mockCallbacks: StrokeCallbacks;
   let handlers: PointerHandlers;
-  let createMockTarget: () => HTMLElement & {
-    setPointerCapture: ReturnType<typeof vi.fn>;
-    releasePointerCapture: ReturnType<typeof vi.fn>;
-  };
+  let createMockTarget: () => HTMLElement;
   let createMockPointerEvent: (
     type: string,
     props: {
@@ -41,16 +38,8 @@ describe('createPointerHandlers', () => {
     handlers = createPointerHandlers(mockCallbacks);
 
     // Helper to create a mock target element with pointer capture methods
-    createMockTarget = (): HTMLElement & {
-      setPointerCapture: ReturnType<typeof vi.fn>;
-      releasePointerCapture: ReturnType<typeof vi.fn>;
-    } => {
-      const mockTarget = document.createElement(
-        'div'
-      ) as unknown as HTMLElement & {
-        setPointerCapture: ReturnType<typeof vi.fn>;
-        releasePointerCapture: ReturnType<typeof vi.fn>;
-      };
+    createMockTarget = (): HTMLElement => {
+      const mockTarget = document.createElement('div');
       mockTarget.setPointerCapture = vi.fn();
       mockTarget.releasePointerCapture = vi.fn();
       return mockTarget;

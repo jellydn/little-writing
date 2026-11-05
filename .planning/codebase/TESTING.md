@@ -347,9 +347,7 @@ vi.mock('@/lib/feedback/soundPlayer', () => ({
 vi.mock('@/hooks/useCanvas', () => ({
   useCanvas: vi.fn(() => ({
     canvasRef: { current: document.createElement('canvas') },
-    ctx: {
-      /* mock context */
-    },
+    ctx: {/* mock context */},
     clear: vi.fn(),
   })),
 }));
