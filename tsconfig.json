@@ -11,7 +11,12 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"]
+    "types": [
+      "vite/client",
+      "vitest/globals",
+      "@testing-library/jest-dom/vitest",
+      "node"
+    ]
   },
   "include": ["src", "tests"],
   "references": [{ "path": "./tsconfig.node.json" }]
