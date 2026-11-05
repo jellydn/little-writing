@@ -1,6 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TracingScreen } from '@/components/screens/TracingScreen';
 import type { CharacterTemplate, DrawingSession } from '@/types';
@@ -222,5 +222,194 @@ describe('TracingScreen', () => {
     expect(
       screen.getByRole('navigation', { name: /Character navigation/i })
     ).toBeInTheDocument();
+  });
+
+  describe('StrokeFeedback integration', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('should show feedback overlay when stroke becomes complete and valid', async () => {
+      const { rerender } = render(<TracingScreen {...defaultProps} />);
+
+      // Initially no feedback
+      expect(
+        screen.queryByText(/Correct! Stroke complete/i)
+      ).not.toBeInTheDocument();
+
+      // Simulate stroke completion with valid stroke
+      const sessionWithValidStroke: DrawingSession = {
+        ...mockSession,
+        strokes: [
+          {
+            id: 1,
+            points: [{ x: 10, y: 90 }],
+            isComplete: true,
+            isValid: true,
+            accuracy: 0.9,
+          },
+        ],
+        currentStrokeIndex: 1,
+      };
+
+      rerender(
+        <TracingScreen
+          {...defaultProps}
+          session={{
+            ...sessionWithValidStroke,
+            strokes: sessionWithValidStroke.strokes.map((stroke) => ({
+              ...stroke,
+              isComplete: false,
+              isValid: null,
+            })),
+          }}
+        />
+      );
+      expect(screen.queryByText('✓')).not.toBeInTheDocument();
+
+      rerender(
+        <TracingScreen {...defaultProps} session={sessionWithValidStroke} />
+      );
+
+      // Feedback should be visible
+      expect(screen.getByText(/Correct! Stroke complete/i)).toBeInTheDocument();
+    });
+
+    it('should show feedback overlay when stroke becomes complete and invalid', async () => {
+      const { rerender } = render(<TracingScreen {...defaultProps} />);
+
+      // Initially no feedback
+      expect(screen.queryByText(/Try again/i)).not.toBeInTheDocument();
+
+      // Simulate stroke completion with invalid stroke
+      const sessionWithInvalidStroke: DrawingSession = {
+        ...mockSession,
+        strokes: [
+          {
+            id: 1,
+            points: [{ x: 10, y: 90 }],
+            isComplete: true,
+            isValid: false,
+            accuracy: 0.3,
+          },
+        ],
+        currentStrokeIndex: 1,
+      };
+
+      rerender(
+        <TracingScreen {...defaultProps} session={sessionWithInvalidStroke} />
+      );
+
+      // Feedback should be visible
+      expect(screen.getByText(/Try again/i)).toBeInTheDocument();
+    });
+
+    it('should dismiss feedback after animation completes for valid stroke', async () => {
+      vi.useFakeTimers();
+      const { rerender } = render(<TracingScreen {...defaultProps} />);
+
+      // Simulate stroke completion with valid stroke
+      const sessionWithValidStroke: DrawingSession = {
+        ...mockSession,
+        strokes: [
+          {
+            id: 1,
+            points: [{ x: 10, y: 90 }],
+            isComplete: true,
+            isValid: true,
+            accuracy: 0.9,
+          },
+        ],
+        currentStrokeIndex: 1,
+      };
+
+      rerender(
+        <TracingScreen {...defaultProps} session={sessionWithValidStroke} />
+      );
+      expect(screen.getByText(/Correct! Stroke complete/i)).toBeInTheDocument();
+
+      // Advance timer to complete animation (300ms for correct strokes)
+      act(() => {
+        vi.advanceTimersByTime(299);
+      });
+      expect(screen.getByText('✓')).toBeInTheDocument();
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.queryByText('✓')).not.toBeInTheDocument();
+      expect(screen.getByText(/Correct! Stroke complete/i)).toBeInTheDocument();
+    });
+
+    it('should dismiss feedback after animation completes for invalid stroke', async () => {
+      vi.useFakeTimers();
+      const { rerender } = render(<TracingScreen {...defaultProps} />);
+
+      // Simulate stroke completion with invalid stroke
+      const sessionWithInvalidStroke: DrawingSession = {
+        ...mockSession,
+        strokes: [
+          {
+            id: 1,
+            points: [{ x: 10, y: 90 }],
+            isComplete: true,
+            isValid: false,
+            accuracy: 0.3,
+          },
+        ],
+        currentStrokeIndex: 1,
+      };
+
+      rerender(
+        <TracingScreen {...defaultProps} session={sessionWithInvalidStroke} />
+      );
+      expect(screen.getByText(/Try again/i)).toBeInTheDocument();
+
+      // Advance timer to complete animation (500ms for incorrect strokes)
+      act(() => {
+        vi.advanceTimersByTime(499);
+      });
+      expect(screen.getByText('✕')).toBeInTheDocument();
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.queryByText('✕')).not.toBeInTheDocument();
+      expect(screen.getByText(/Try again/i)).toBeInTheDocument();
+    });
+
+    it('should hide feedback when strokes are cleared', () => {
+      const { rerender } = render(<TracingScreen {...defaultProps} />);
+
+      // First add a stroke with feedback
+      const sessionWithStroke: DrawingSession = {
+        ...mockSession,
+        strokes: [
+          {
+            id: 1,
+            points: [{ x: 10, y: 90 }],
+            isComplete: true,
+            isValid: true,
+            accuracy: 0.9,
+          },
+        ],
+        currentStrokeIndex: 1,
+      };
+
+      rerender(<TracingScreen {...defaultProps} session={sessionWithStroke} />);
+      expect(screen.getByText(/Correct! Stroke complete/i)).toBeInTheDocument();
+
+      // Now clear strokes (simulating onClear)
+      const clearedSession: DrawingSession = {
+        ...mockSession,
+        strokes: [],
+        currentStrokeIndex: 0,
+      };
+
+      rerender(<TracingScreen {...defaultProps} session={clearedSession} />);
+
+      // Feedback should be hidden
+      expect(
+        screen.queryByText(/Correct! Stroke complete/i)
+      ).not.toBeInTheDocument();
+    });
   });
 });

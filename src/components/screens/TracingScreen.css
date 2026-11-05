@@ -156,3 +156,7 @@
     margin-top: 16px;
   }
 }
+
+.canvas-wrapper {
+  position: relative;
+}
