@@ -16,10 +16,10 @@
     "format:check": "oxfmt --check"
   },
   "dependencies": {
-    "konva": "^9.2.0",
+    "konva": "^10.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-konva": "^18.2.10",
+    "react-konva": "^19.0.0",
     "zustand": "^4.4.7"
   },
   "devDependencies": {
@@ -27,8 +27,8 @@
     "@capacitor/core": "^6.0.0",
     "@capacitor/ios": "^6.0.0",
     "@playwright/test": "^1.58.2",
-    "@testing-library/jest-dom": "^6.1.4",
-    "@testing-library/react": "^14.1.2",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.1",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
@@ -38,7 +38,7 @@
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",
     "playwright": "^1.40.1",
-    "typescript": "^5.3.3",
+    "typescript": "^7.0.0",
     "vite": "6",
     "vitest": "^1.1.0"
   }
