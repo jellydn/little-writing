@@ -67,11 +67,7 @@ export const StrokeFeedback: React.FC<StrokeFeedbackProps> = ({
     }
   }, [isVisible, stroke, onComplete]);
 
-  if (!isVisible || !stroke || stroke.isValid === null) {
-    return null;
-  }
-
-  const isCorrect = stroke.isValid;
+  const isCorrect = stroke?.isValid === true;
   const feedbackColor = isCorrect ? COLORS.correct : COLORS.incorrect;
   const feedbackClass = getFeedbackClass(isCorrect, isVisible);
   const animationStyle = isCorrect
@@ -82,52 +78,60 @@ export const StrokeFeedback: React.FC<StrokeFeedbackProps> = ({
       });
 
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-      className={`stroke-feedback ${feedbackClass} ${showShake ? 'shake' : ''}`}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        pointerEvents: 'none',
-        backgroundColor: isCorrect
-          ? `${feedbackColor}15`
-          : `${feedbackColor}20`,
-        border: `4px solid ${feedbackColor}`,
-        borderRadius: '12px',
-        opacity: isVisible ? 1 : 0,
-        transition: 'opacity 200ms ease-out',
-        ...animationStyle,
-      }}
-    >
-      {/* Screen reader announcement — visually-hidden is defined in src/styles/globals.css */}
-      <span className="visually-hidden">
-        {isCorrect
-          ? 'Correct! Stroke complete.'
-          : 'Try again. Stroke was off track.'}
-      </span>
-
-      {/* Feedback icon */}
+    <>
+      {/* Keep the live region mounted and its message available after visual dismissal. */}
       <div
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          fontSize: '48px',
-          color: feedbackColor,
-          textShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-        }}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="visually-hidden"
       >
-        {isCorrect ? '✓' : '✕'}
+        {stroke && stroke.isValid !== null && (
+          <span key={stroke.id}>
+            {isCorrect
+              ? 'Correct! Stroke complete.'
+              : 'Try again. Stroke was off track.'}
+          </span>
+        )}
       </div>
+      {isVisible && stroke && stroke.isValid !== null && (
+        <div
+          aria-hidden="true"
+          className={`stroke-feedback ${feedbackClass} ${showShake ? 'shake' : ''}`}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            pointerEvents: 'none',
+            backgroundColor: isCorrect
+              ? `${feedbackColor}15`
+              : `${feedbackColor}20`,
+            border: `4px solid ${feedbackColor}`,
+            borderRadius: '12px',
+            opacity: isVisible ? 1 : 0,
+            transition: 'opacity 200ms ease-out',
+            ...animationStyle,
+          }}
+        >
+          {/* Feedback icon */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              fontSize: '48px',
+              color: feedbackColor,
+              textShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+            }}
+          >
+            {isCorrect ? '✓' : '✕'}
+          </div>
 
-      {/* CSS injection for animations */}
-      <style>{`
+          {/* CSS injection for animations */}
+          <style>{`
         .stroke-feedback.feedback-correct {
           animation: fadeInOut 300ms ease-out;
         }
@@ -154,6 +158,8 @@ export const StrokeFeedback: React.FC<StrokeFeedbackProps> = ({
           }
         }
       `}</style>
-    </div>
+        </div>
+      )}
+    </>
   );
 };

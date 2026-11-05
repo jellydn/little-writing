@@ -1,6 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TracingScreen } from '@/components/screens/TracingScreen';
 import type { CharacterTemplate, DrawingSession } from '@/types';
@@ -225,6 +225,10 @@ describe('TracingScreen', () => {
   });
 
   describe('StrokeFeedback integration', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it('should show feedback overlay when stroke becomes complete and valid', async () => {
       const { rerender } = render(<TracingScreen {...defaultProps} />);
 
@@ -247,6 +251,21 @@ describe('TracingScreen', () => {
         ],
         currentStrokeIndex: 1,
       };
+
+      rerender(
+        <TracingScreen
+          {...defaultProps}
+          session={{
+            ...sessionWithValidStroke,
+            strokes: sessionWithValidStroke.strokes.map((stroke) => ({
+              ...stroke,
+              isComplete: false,
+              isValid: null,
+            })),
+          }}
+        />
+      );
+      expect(screen.queryByText('✓')).not.toBeInTheDocument();
 
       rerender(
         <TracingScreen {...defaultProps} session={sessionWithValidStroke} />
@@ -310,11 +329,15 @@ describe('TracingScreen', () => {
       expect(screen.getByText(/Correct! Stroke complete/i)).toBeInTheDocument();
 
       // Advance timer to complete animation (300ms for correct strokes)
-      vi.advanceTimersByTime(300);
-
-      // Feedback should be dismissed (hidden via state change)
-      // The overlay will be removed from DOM when isVisible becomes false
-      vi.useRealTimers();
+      act(() => {
+        vi.advanceTimersByTime(299);
+      });
+      expect(screen.getByText('✓')).toBeInTheDocument();
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.queryByText('✓')).not.toBeInTheDocument();
+      expect(screen.getByText(/Correct! Stroke complete/i)).toBeInTheDocument();
     });
 
     it('should dismiss feedback after animation completes for invalid stroke', async () => {
@@ -342,9 +365,15 @@ describe('TracingScreen', () => {
       expect(screen.getByText(/Try again/i)).toBeInTheDocument();
 
       // Advance timer to complete animation (500ms for incorrect strokes)
-      vi.advanceTimersByTime(500);
-
-      vi.useRealTimers();
+      act(() => {
+        vi.advanceTimersByTime(499);
+      });
+      expect(screen.getByText('✕')).toBeInTheDocument();
+      act(() => {
+        vi.advanceTimersByTime(1);
+      });
+      expect(screen.queryByText('✕')).not.toBeInTheDocument();
+      expect(screen.getByText(/Try again/i)).toBeInTheDocument();
     });
 
     it('should hide feedback when strokes are cleared', () => {
