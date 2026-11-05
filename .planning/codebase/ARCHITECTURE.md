@@ -212,16 +212,16 @@ Stroke End
 
 ### 4.1 Type System (`src/types/index.ts`)
 
-| Type                | Purpose                                                     |
+| Type | Purpose |
 | ------------------- | ----------------------------------------------------------- | --------------------- | ----------- |
-| `Point`             | 2D coordinate {x, y}                                        |
-| `StrokePath`        | Guide path with id, SVG path, start/end points, guidePoints |
-| `CharacterTemplate` | Complete character: bounds, strokes, metadata               |
-| `Stroke`            | User-drawn stroke: points array, validation state           |
-| `DrawingSession`    | Active session: template, strokes, progress                 |
-| `AppStore`          | Zustand store interface (state + actions)                   |
-| `Screen`            | Union: 'category-selection'                                 | 'character-selection' | 'tracing'   |
-| `Category`          | Union: 'number'                                             | 'uppercase'           | 'lowercase' |
+| `Point` | 2D coordinate {x, y} |
+| `StrokePath` | Guide path with id, SVG path, start/end points, guidePoints |
+| `CharacterTemplate` | Complete character: bounds, strokes, metadata |
+| `Stroke` | User-drawn stroke: points array, validation state |
+| `DrawingSession` | Active session: template, strokes, progress |
+| `AppStore` | Zustand store interface (state + actions) |
+| `Screen` | Union: 'category-selection' | 'character-selection' | 'tracing' |
+| `Category` | Union: 'number' | 'uppercase' | 'lowercase' |
 
 ### 4.2 Canvas Rendering Architecture
 
