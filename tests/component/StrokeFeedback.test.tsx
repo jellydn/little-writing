@@ -36,26 +36,51 @@ describe('StrokeFeedback', () => {
     vi.useRealTimers();
   });
 
-  it('should render null when not visible', () => {
+  it('should hide the visual overlay when not visible', () => {
     const { container } = render(
       <StrokeFeedback stroke={validStroke} isVisible={false} />
     );
-    expect(container.firstChild).toBeNull();
+    expect(container.querySelector('.stroke-feedback')).toBeNull();
   });
 
-  it('should render null when stroke is null', () => {
+  it('should hide the visual overlay when stroke is null', () => {
     const { container } = render(
       <StrokeFeedback stroke={null} isVisible={true} />
     );
-    expect(container.firstChild).toBeNull();
+    expect(container.querySelector('.stroke-feedback')).toBeNull();
   });
 
-  it('should render null when stroke isValid is null', () => {
+  it('should hide the visual overlay when stroke isValid is null', () => {
     const pendingStroke: Stroke = { ...validStroke, isValid: null };
     const { container } = render(
       <StrokeFeedback stroke={pendingStroke} isVisible={true} />
     );
-    expect(container.firstChild).toBeNull();
+    expect(container.querySelector('.stroke-feedback')).toBeNull();
+  });
+
+  it('keeps an existing live region through feedback and dismissal', () => {
+    const { rerender } = render(
+      <StrokeFeedback stroke={null} isVisible={false} />
+    );
+    const status = screen.getByRole('status');
+    expect(status).toBeEmptyDOMElement();
+
+    rerender(<StrokeFeedback stroke={validStroke} isVisible={true} />);
+    expect(screen.getByRole('status')).toBe(status);
+    expect(status).toHaveTextContent('Correct! Stroke complete.');
+    expect(
+      screen.getByText('✓').closest('[aria-hidden="true"]')
+    ).not.toBeNull();
+
+    rerender(<StrokeFeedback stroke={validStroke} isVisible={false} />);
+    expect(status).toHaveTextContent('Correct! Stroke complete.');
+
+    rerender(<StrokeFeedback stroke={invalidStroke} isVisible={true} />);
+    expect(screen.getByRole('status')).toBe(status);
+    expect(status).toHaveTextContent('Try again. Stroke was off track.');
+
+    rerender(<StrokeFeedback stroke={null} isVisible={false} />);
+    expect(status).toBeEmptyDOMElement();
   });
 
   it('should render checkmark for valid stroke', () => {

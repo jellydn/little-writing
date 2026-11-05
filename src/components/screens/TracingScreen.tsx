@@ -8,12 +8,13 @@
  */
 
 import type React from 'react';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavButtons } from '@/components/navigation/NavButtons';
 import { Canvas } from '@/components/tracing/Canvas';
+import { StrokeFeedback } from '@/components/tracing/StrokeFeedback';
 import { SuccessAnimation } from '@/components/tracing/SuccessAnimation';
 import { useCanvasSize } from '@/hooks/useCanvasSize';
-import type { CharacterTemplate, DrawingSession, Point } from '@/types';
+import type { CharacterTemplate, DrawingSession, Point, Stroke } from '@/types';
 import './TracingScreen.css';
 
 interface TracingScreenProps {
@@ -48,6 +49,53 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
   const hasNext = currentIndex < categoryCharacters.length - 1;
   const hasPrevious = currentIndex > 0;
 
+  // Stroke feedback state
+  const [feedbackVisible, setFeedbackVisible] = useState(false);
+  const [feedbackStroke, setFeedbackStroke] = useState<Stroke | null>(null);
+
+  // Tracks the last stroke completion/validation state we've already shown feedback for.
+  const lastValidatedStrokeKeyRef = useRef<string | null>(null);
+
+  // Show stroke feedback when a stroke becomes completed and validated
+  useEffect(() => {
+    const currentCount = session.strokes.length;
+
+    if (currentCount === 0) {
+      // Strokes cleared — hide any visible feedback
+      setFeedbackVisible(false);
+      setFeedbackStroke(null);
+      lastValidatedStrokeKeyRef.current = null;
+      return;
+    }
+
+    const lastIndex = currentCount - 1;
+    const lastStroke = session.strokes[lastIndex];
+
+    // Build a simple key so we only show feedback once per completed+validated state
+    const validationKey = `${lastIndex}:${String(lastStroke.isComplete)}:${String(
+      lastStroke.isValid
+    )}`;
+
+    const prevValidationKey = lastValidatedStrokeKeyRef.current;
+
+    if (
+      lastStroke.isComplete &&
+      lastStroke.isValid !== null &&
+      validationKey !== prevValidationKey
+    ) {
+      setFeedbackStroke(lastStroke);
+      setFeedbackVisible(true);
+      lastValidatedStrokeKeyRef.current = validationKey;
+    }
+  }, [session.strokes]);
+
+  // Reset feedback tracking when a new session starts
+  useEffect(() => {
+    lastValidatedStrokeKeyRef.current = null;
+    setFeedbackVisible(false);
+    setFeedbackStroke(null);
+  }, [session.startedAt]);
+
   // Ref to store timeout ID for cleanup
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -66,6 +114,11 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
       timeoutRef.current = setTimeout(onNext, 500);
     }
   }, [hasNext, onNext]);
+
+  // Memoized callback for stroke feedback dismissal
+  const handleFeedbackComplete = useCallback(() => {
+    setFeedbackVisible(false);
+  }, []);
 
   return (
     <div className="tracing-screen">
@@ -90,16 +143,23 @@ export const TracingScreen: React.FC<TracingScreenProps> = ({
       </header>
 
       <main className="tracing-canvas-container">
-        <Canvas
-          key={`${template.character}-${session.startedAt}`}
-          template={template}
-          session={session}
-          width={canvasSize}
-          height={canvasSize}
-          onStrokeStart={onStrokeStart}
-          onStrokeMove={onStrokeMove}
-          onStrokeEnd={onStrokeEnd}
-        />
+        <div className="canvas-wrapper">
+          <Canvas
+            key={`${template.character}-${session.startedAt}`}
+            template={template}
+            session={session}
+            width={canvasSize}
+            height={canvasSize}
+            onStrokeStart={onStrokeStart}
+            onStrokeMove={onStrokeMove}
+            onStrokeEnd={onStrokeEnd}
+          />
+          <StrokeFeedback
+            stroke={feedbackStroke}
+            isVisible={feedbackVisible}
+            onComplete={handleFeedbackComplete}
+          />
+        </div>
 
         <div
           className="progress-indicator"
