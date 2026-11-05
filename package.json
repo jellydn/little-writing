@@ -33,7 +33,7 @@
     "@types/node": "^26",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "4",
+    "@vitejs/plugin-react": "6",
     "@vitest/coverage-v8": "^5.0.0",
     "jsdom": "^23.0.1",
     "oxfmt": "^0.76.0",
